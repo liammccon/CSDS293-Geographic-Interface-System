@@ -3,8 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Assignments2-5_GIS.iml" filepath="$PROJECT_DIR$/Assignments2-5_GIS.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Experimenting/Experimenting.iml" filepath="$PROJECT_DIR$/Experimenting/Experimenting.iml" />
       <module fileurl="file://$PROJECT_DIR$/GISModule/GISModule.iml" filepath="$PROJECT_DIR$/GISModule/GISModule.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Testing/Testing.iml" filepath="$PROJECT_DIR$/Testing/Testing.iml" />
     </modules>
   </component>
 </project>
