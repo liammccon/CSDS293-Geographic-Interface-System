@@ -11,10 +11,12 @@ import java.util.function.Supplier;
  * A 2D map used to store information about landmarks in a geographical area.
  * <p>Add landmarks with the {@code Updater}</p>
  * @param <T> the type for markers stored at each coordinate point.
- * todo implemented as a Sorted Map of Sorted Maps?
  */
 public class BiDimensionalMap <T> {
 
+    /*Markers stored in a Sorted Map of Sorted Maps
+      Works by accessing the first sorted map with the x value as key ( with points.get(x)) to
+       get a map of all collections of markers ( with points.get(x).get(y) ) at y locations for that x */
     private final SortedMap<BigDecimal, SortedMap<BigDecimal, Collection<T> > > points = new TreeMap<>();
 
     public final Collection<T> get(BigDecimal x, BigDecimal y){
@@ -85,11 +87,11 @@ public class BiDimensionalMap <T> {
         }
 
 
-        //supplies the initial instance of the collection stored at the (x,y) coordinates todo change text?
+        //Gives the initial instance of the collection stored at the (x,y) coordinates
         private Supplier<Collection<T>> collectionFactory = HashSet::new;
 
-        public final Updater setCollectionFactory(Supplier<Collection<T>> collectionFactory){ //todo whats this for? should i doc better?
-            if (collectionFactory == null) {//todo this a good check?
+        public final Updater setCollectionFactory(Supplier<Collection<T>> collectionFactory){ //todo is this really needed?
+            if (collectionFactory == null) {
                 throw new NullPointerException("CollectionFactory can not be null");
             } else {
                 this.collectionFactory = collectionFactory;
@@ -98,7 +100,7 @@ public class BiDimensionalMap <T> {
         }
 
 
-        private Collection<T> values = collectionFactory.get();//todo is this right?
+        private Collection<T> values = collectionFactory.get();
 
         public final Updater setValues(Collection<T> values){
             if (values == null){
@@ -120,7 +122,6 @@ public class BiDimensionalMap <T> {
 
 
         public final Collection<T> set(){
-            //todo what do i gotta do with the factory?! what checks do i do? whats this doing
             HashSet<T> previousValues = null;
             if (collectionExistsAtXY(x, y)) {
                 previousValues = new HashSet<>(get(x, y));
@@ -128,7 +129,6 @@ public class BiDimensionalMap <T> {
                 addCollectionToMapAtXY();
             }
             get(x,y).clear();
-            //todo assert values!= null?
             get(x,y).addAll(values);
             return previousValues;
         }
@@ -138,7 +138,6 @@ public class BiDimensionalMap <T> {
             if (!collectionExistsAtXY(x, y)){
                 addCollectionToMapAtXY();
             }
-            //todo assert values != null?
             if (values.isEmpty()) {
                 return false;
             } else {
@@ -149,10 +148,11 @@ public class BiDimensionalMap <T> {
 
         private Collection<T> addCollectionToMapAtXY(){
             //This method will do nothing if Collection already exists at (x, y) in the map
-            //Check collectionExistsAtXY() before calling this method
+            //So check collectionExistsAtXY() before calling this method
             assert (!collectionExistsAtXY(x, y));
 
             if (!collectionExistAtX(x)){
+                //add the map that will store all of the y maps
                 SortedMap<BigDecimal, Collection<T> >  newMap = new TreeMap<>();
                 points.put(x, newMap);
             } else {

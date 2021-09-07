@@ -7,8 +7,7 @@ package gis;
  * @param marker Marks what is at the coordinate
  */
 public record InterestPoint<M>(Coordinate coordinate, M marker) {
-//TODO add braces to all ifs
-    //TODO add elses to all ifs?
+
 /**Validates that the interest point it is called on has no null values
  * @throws NullPointerException if the interest point, coordinate, coordinate components, or marker is null
  * @return The InterestPoint it was called on
@@ -37,7 +36,7 @@ public record InterestPoint<M>(Coordinate coordinate, M marker) {
 
     public boolean hasMarker(M marker){
         validate();
-        return this.marker.equals(marker); //todo: need equals?
+        return this.marker.equals(marker);
     }
 
     public String toString(){

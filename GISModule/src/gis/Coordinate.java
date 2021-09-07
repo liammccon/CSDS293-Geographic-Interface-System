@@ -13,8 +13,7 @@ import java.math.BigDecimal;
  */
 
 public record Coordinate(BigDecimal x, BigDecimal y) implements Comparable<Coordinate>{
-    //TODO! Format my error messages better?
-    //TODO! do I need to auto validate on initialization? Or ok to initialize null Coor. w/o exception
+
     /**Validates that a coordinate's x and y components are not null
      * @throws NullPointerException if either x or y are null,
      * and otherwise returns the coordinate it was called on.
@@ -34,7 +33,6 @@ public record Coordinate(BigDecimal x, BigDecimal y) implements Comparable<Coord
      * @return The safe (not null) coordinate that was passed in
      */
     public static final Coordinate validate(Coordinate coordinate){
-        //todo: correct? throws a NullPointerException if either the coordinate or its x or y values are null, and otherwise returns the argument.
         if (coordinate == null) {
             throw new NullPointerException("Coordinate can not be null");
         }
