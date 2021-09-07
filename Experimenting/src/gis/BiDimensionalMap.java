@@ -10,10 +10,9 @@ import java.util.function.Supplier;
 /**
  * A 2D map used to store information about landmarks in a geographical area.
  * <p>Add landmarks with the {@code Updater}</p>
- * @param <T> the type for markers stored at each coordinate point.
- * todo implemented as a Sorted Map of Sorted Maps?
+ * @param <T> the type for the items stored at each coordinate point.
  */
-public class BiDimensionalMap <T> {
+public class BiDimensionalMap<T> {
 
     private final SortedMap<BigDecimal, SortedMap<BigDecimal, Collection<T> > > points = new TreeMap<>();
 
@@ -29,11 +28,10 @@ public class BiDimensionalMap <T> {
     }
 
     public final Collection<T> get(Coordinate coordinate) {
-        return get(coordinate.x(), coordinate.y());
+        return get(coordinate.x(), coordinate.y()); //validation handled by first get method
     }
 
-
-    private void validateBigDecimal(BigDecimal d){
+    private void validateBigDecimal(BigDecimal d){ //todo this specific enough?
         if (d == null) {
             throw new NullPointerException("Coordinate component can not be null");
         }
@@ -55,24 +53,11 @@ public class BiDimensionalMap <T> {
         return new Updater();
     }
 
-    /**
-     * Updater class used to add markers to the {@code BiDimensionalMap}
-     * <p>Use {@code setCoordinate(), setX()}, or {@code setY()} to set what coordinate point the markers will be added to, default is (0, 0).</p>
-     * <p>Use {@code addValue} to add a markers a list that will be put into the {@code BiDimensionalMap}   </p>
-     *<p>Use {@code add()} to add that list of markers to the map at the specified location
-     * or {@code set()} to replace the map's values at that location with that list of markers </p>
-     */
     public final class Updater{
 
         private BigDecimal x =  new BigDecimal(0);
         private BigDecimal y = new BigDecimal(0);
 
-        public final Updater setCoordinate(Coordinate coordinate) {
-            Coordinate.validate(coordinate);
-            setX(coordinate.x());
-            setY(coordinate.y());
-            return this;
-        }
         public final Updater setX(BigDecimal x){
             validateBigDecimal(x);
             this.x = x;
@@ -87,8 +72,7 @@ public class BiDimensionalMap <T> {
 
         //supplies the initial instance of the collection stored at the (x,y) coordinates todo change text?
         private Supplier<Collection<T>> collectionFactory = HashSet::new;
-
-        public final Updater setCollectionFactory(Supplier<Collection<T>> collectionFactory){ //todo whats this for? should i doc better?
+        public final Updater setCollectionFactory(Supplier<Collection<T>> collectionFactory){
             if (collectionFactory == null) {//todo this a good check?
                 throw new NullPointerException("CollectionFactory can not be null");
             } else {
@@ -97,9 +81,7 @@ public class BiDimensionalMap <T> {
             }
         }
 
-
         private Collection<T> values = collectionFactory.get();//todo is this right?
-
         public final Updater setValues(Collection<T> values){
             if (values == null){
                 throw new NullPointerException("Values can not be null");
@@ -107,6 +89,13 @@ public class BiDimensionalMap <T> {
                 this.values = values;
                 return this;
             }
+        }
+
+        public final Updater setCoordinate(Coordinate coordinate) {
+            Coordinate.validate(coordinate);
+            setX(coordinate.x());
+            setY(coordinate.y());
+            return this;
         }
 
         public final Updater addValue(T value){
@@ -125,7 +114,7 @@ public class BiDimensionalMap <T> {
             if (collectionExistsAtXY(x, y)) {
                 previousValues = new HashSet<>(get(x, y));
             } else {
-                addCollectionToMapAtXY();
+                addCollection();
             }
             get(x,y).clear();
             //todo assert values!= null?
@@ -135,8 +124,8 @@ public class BiDimensionalMap <T> {
 
         public final boolean add() {
             //if no interestPoints at get(x,y)
-            if (!collectionExistsAtXY(x, y)){
-                addCollectionToMapAtXY();
+            if (!collectionExistsAtXY(x, y)){//todo not needed, but looks nicer
+                addCollection();
             }
             //todo assert values != null?
             if (values.isEmpty()) {
@@ -147,11 +136,8 @@ public class BiDimensionalMap <T> {
             }
         }
 
-        private Collection<T> addCollectionToMapAtXY(){
-            //This method will do nothing if Collection already exists at (x, y) in the map
-            //Check collectionExistsAtXY() before calling this method
-            assert (!collectionExistsAtXY(x, y));
 
+        private Collection<T> addCollection(){
             if (!collectionExistAtX(x)){
                 SortedMap<BigDecimal, Collection<T> >  newMap = new TreeMap<>();
                 points.put(x, newMap);
@@ -163,7 +149,8 @@ public class BiDimensionalMap <T> {
                 Supplier<Collection<T>> newCollectionFactory = HashSet::new;
                 points.get(x).put(y, newCollectionFactory.get());
             } else {
-                //Collection exists at (x, y)! do nothing
+                //Collection exists at (x, y)! so do nothing
+                //todo throw some kinda error because they should check first?
             }
             return get(x,y);
         }

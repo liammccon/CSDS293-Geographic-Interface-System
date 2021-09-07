@@ -14,7 +14,7 @@ public record InterestPoint<M>(Coordinate coordinate, M marker) {
  * @return The InterestPoint it was called on
  */
     public final InterestPoint validate(){
-        Coordinate.validate(coordinate);
+        Coordinate.validate(coordinate); //todo like this?
         if (marker == null) {
             throw new NullPointerException("Marker cannot be null");
         } else {
@@ -41,7 +41,6 @@ public record InterestPoint<M>(Coordinate coordinate, M marker) {
     }
 
     public String toString(){
-        validate();
-        return marker + " is located at " + this.coordinate.toSimpleString();
+        return "Marker " + marker + " is at " + this.coordinate.toSimpleString();
     }
 }

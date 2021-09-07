@@ -53,13 +53,17 @@ public record Coordinate(BigDecimal x, BigDecimal y) implements Comparable<Coord
     public int compareTo(Coordinate other) {
         this.validate();
         other.validate();
-        if (this.x.compareTo(other.x) < 0) { //todo ok to split || into two ifs? same return
-            return -1;
-        } else if ((this.x.compareTo(other.x)==0) && (this.y.compareTo(other.y) < 0)) {
+
+        boolean thisLessThanOtherTest1 = this.x.compareTo(other.x) < 0;
+        boolean thisLessThanOtherTest2 = (this.x.compareTo(other.x)==0) && (this.y.compareTo(other.y) < 0);
+
+        if (thisLessThanOtherTest1 || thisLessThanOtherTest2){
             return -1;
         } else if ((this.x.compareTo(other.x) == 0) && (this.y.compareTo(other.y) == 0)) {
             return 0;
-        } else return 1; //(this.x > other.x) or (this.x == other.x and this.y > other.y)
+        } else {
+            return 1;
+        }
     }
 
     /**
