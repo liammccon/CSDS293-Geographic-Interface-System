@@ -8,10 +8,6 @@ package gis;
  */
 public record InterestPoint<M>(Coordinate coordinate, M marker) {
 
-/**Validates that the interest point it is called on has no null values
- * @throws NullPointerException if the interest point, coordinate, coordinate components, or marker is null
- * @return The InterestPoint it was called on
- */
     public final InterestPoint validate(){
         Coordinate.validate(coordinate);
         if (marker == null) {
@@ -21,10 +17,6 @@ public record InterestPoint<M>(Coordinate coordinate, M marker) {
         }
     }
 
-    /**Validates that the interest point passed as argument has no null values
-     *  @throws NullPointerException if the interest point, coordinate, coordinate components, or marker is null
-     * @return The InterestPoint passed as argument
-     */
     public static final InterestPoint validate(InterestPoint interestPoint){
         if (interestPoint == null) {
             throw new NullPointerException("InterestPoint cannot be null");

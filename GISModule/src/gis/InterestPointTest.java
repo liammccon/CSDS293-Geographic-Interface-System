@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.*;
 
 class InterestPointTest {
-    //todo: these ok?
     @Test
     void validate() {
         Coordinate nullXYCoordinate = new Coordinate(null, null);
@@ -18,17 +17,11 @@ class InterestPointTest {
         InterestPoint<String> nullXYCoordinatePoint = new InterestPoint<>(nullXYCoordinate, "Mars");
         InterestPoint<String> nullMarkerPoint = new InterestPoint<>(Coordinate.ORIGIN, nullString);
 
-        assertThrows(NullPointerException.class, ()->{
-            nullCoordinatePoint.validate();
-        } );
+        assertThrows(NullPointerException.class, nullCoordinatePoint::validate);
 
-        assertThrows(NullPointerException.class, ()->{
-            nullXYCoordinatePoint.validate();
-        } );
+        assertThrows(NullPointerException.class, nullXYCoordinatePoint::validate);
 
-        assertThrows(NullPointerException.class, ()->{
-            nullMarkerPoint.validate();
-        } );
+        assertThrows(NullPointerException.class, nullMarkerPoint::validate);
     }
 
 

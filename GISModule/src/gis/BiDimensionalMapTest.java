@@ -12,6 +12,7 @@ class BiDimensionalMapTest {
     InterestPoint<String> originIsland = new InterestPoint<>(Coordinate.ORIGIN, "ORIGIN ISLAND");
 
     private static void addInterestPointToMap (BiDimensionalMap<InterestPoint<String>> map, InterestPoint<String> point){
+        //Helper method for testing add()
         BiDimensionalMap<InterestPoint<String>>.Updater updater = map.getUpdater();
         updater.setCoordinate(point.coordinate());
         updater.addValue(point);
@@ -23,6 +24,7 @@ class BiDimensionalMapTest {
         BiDimensionalMap<InterestPoint<String>> map = new BiDimensionalMap<>();
         addInterestPointToMap(map, home);
         addInterestPointToMap(map, originIsland);
+        //Passes if map contains the points we added, at the location we added them
         assertTrue(map.get(c1x1).contains(home));
         assertTrue(map.get(Coordinate.ORIGIN).contains(originIsland));
     }
@@ -31,13 +33,16 @@ class BiDimensionalMapTest {
     public void testSet(){
         BiDimensionalMap<InterestPoint<String>> map = new BiDimensionalMap<>();
         addInterestPointToMap(map, home);
-        InterestPoint<String> demoZone = new InterestPoint<>(home.coordinate(), "DEMOLITION ZONE");
+        InterestPoint<String> demolitionZone = new InterestPoint<>(home.coordinate(), "DEMOLITION ZONE");
         BiDimensionalMap.Updater updater = map.getUpdater();
-        updater.setCoordinate(demoZone.coordinate());
-        updater.addValue(demoZone);
+        updater.setCoordinate(demolitionZone.coordinate());
+        updater.addValue(demolitionZone);
         updater.set();
-        //todo test coord of map (key of ...)
-        assertTrue(map.get(demoZone.coordinate()).contains(demoZone));
+        /*Passes if map contains the demolitionZone marker
+          and does not contain the home that was previously at that location
+          because set() overrides previously stored values
+         */
+        assertTrue(map.get(demolitionZone.coordinate()).contains(demolitionZone));
         assertFalse(map.get(home.coordinate()).contains(home));
     }
 
@@ -56,13 +61,5 @@ class BiDimensionalMapTest {
         assertThrows(NullPointerException.class, () -> {
             addInterestPointToMap(map, nullXCoordinateInterest);
         });
-
-        /*assertThrows(NullPointerException.class, () -> { todo!
-
-        });
-
-        assertThrows(NullPointerException.class, () -> {
-
-        });*/
     }
 }
