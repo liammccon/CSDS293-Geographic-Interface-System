@@ -1,4 +1,4 @@
-To run the code, save the package and compile in an IDE
+To run the code, save the gis package and compile in an IDE
 
 Open and run the BiDimensionalMapTest.java (as well as CoordinateTest and InterestPointTest) to see the code working
 
