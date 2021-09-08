@@ -75,17 +75,20 @@ public class BiDimensionalMap <T> {
         private BigDecimal x =  new BigDecimal(0);
         private BigDecimal y = new BigDecimal(0);
 
+
         public final Updater setCoordinate(Coordinate coordinate) {
             Coordinate.validate(coordinate);
             setX(coordinate.x());
             setY(coordinate.y());
             return this;
         }
+
         public final Updater setX(BigDecimal x){
             validateBigDecimal(x);
             this.x = x;
             return this;
         }
+
         public final Updater setY(BigDecimal y){
             validateBigDecimal(y);
             this.y = y;
@@ -105,8 +108,7 @@ public class BiDimensionalMap <T> {
             }
         }
 
-        /*Stores the markers to be added to the Map with add() or set()
-          Can not delete markers from values, instead make a new Updater*/
+        //Stores the markers to be added to the Map with add() or set()
         private Collection<T> values = collectionFactory.get();
 
         public final Updater setValues(Collection<T> values){
