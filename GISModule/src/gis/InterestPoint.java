@@ -1,5 +1,7 @@
 package gis;
 
+import java.util.Objects;
+
 /**
  *Stores a landmark comprised of a coordinate pair and marker
  * @param <M> The type of the marker
@@ -8,22 +10,15 @@ package gis;
  */
 public record InterestPoint<M>(Coordinate coordinate, M marker) {
 
-    public final InterestPoint validate(){
-        Coordinate.validate(coordinate);
-        if (marker == null) {
-            throw new NullPointerException("Marker cannot be null");
-        } else {
-            return this;
-        }
+    public static final InterestPoint validate(InterestPoint interestPoint){
+        Objects.requireNonNull(interestPoint, "InterestPoint cannot be null");
+        Objects.requireNonNull(interestPoint.marker, "marker cannot be null");
+        interestPoint.coordinate.validate();
+        return interestPoint;
     }
 
-    public static final InterestPoint validate(InterestPoint interestPoint){
-        if (interestPoint == null) {
-            throw new NullPointerException("InterestPoint cannot be null");
-        } else {
-            interestPoint.validate();
-            return interestPoint;
-        }
+    public final InterestPoint validate(){
+        return InterestPoint.validate(this);
     }
 
     public boolean hasMarker(M marker){

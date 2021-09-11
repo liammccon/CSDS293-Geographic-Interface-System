@@ -1,10 +1,7 @@
 package gis;
 
 import java.math.BigDecimal;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.function.Supplier;
 
 /**
@@ -41,15 +38,15 @@ public class BiDimensionalMap <T> {
         }
     }
 
-    /*True if points has a SortedMap at x (that can store a collection of markers at a certain y coordinate)
-    no markers need to exist to return true, just the Map */
+    /**True if points has a SortedMap at x (that can store a collection of markers at a certain y coordinate).
+    No markers need to exist to return true, just the Map */
     private boolean mapExistAtX(BigDecimal x){
         return points.containsKey(x);
     }
 
-    /*True if points has a SortedMap at x and a Collection at that SortedMap's y location
-    no markers need to exist to return true, just the Map
-    if true, markers can be safely added to points.get(x).get(y) */
+    /**True if points has a SortedMap at x and a Collection at that SortedMap's y location.
+     * No markers need to exist to return true, just the Map.
+     * If true, markers can be safely added to points.get(x).get(y)*/
     private boolean collectionExistsAtXY(BigDecimal x, BigDecimal y){
         if (mapExistAtX(x)){
             return points.get(x).containsKey(y);
@@ -99,6 +96,7 @@ public class BiDimensionalMap <T> {
         //Gives the initial instance of the collection stored at the (x,y) coordinates
         private Supplier<Collection<T>> collectionFactory = HashSet::new;
 
+        //todo might not need? - if public defeats purpose
         public final Updater setCollectionFactory(Supplier<Collection<T>> collectionFactory){
             if (collectionFactory == null) {
                 throw new NullPointerException("CollectionFactory can not be null");
@@ -111,6 +109,7 @@ public class BiDimensionalMap <T> {
         //Stores the markers to be added to the Map with add() or set()
         private Collection<T> values = collectionFactory.get();
 
+        //todo might not need? - if public defeats purpose
         public final Updater setValues(Collection<T> values){
             if (values == null){
                 throw new NullPointerException("Values can not be null");
@@ -120,8 +119,14 @@ public class BiDimensionalMap <T> {
             }
         }
 
-        //add a marker to values. Need to use add() or set() to add to the BiDimensionalMap
+        /**add a marker to values. Need to use add() or set() to add to the BiDimensionalMap
+         *
+         * @param value The marker to be added a list of values
+         * @return this Updater
+         */
         public final Updater addValue(T value){
+            //todo can add if i want Objects.requireNonNull(x, "message")
+            //Objects.requireNonNull(value, "Value can not be null");
             if (value == null){
                 throw new NullPointerException("Value can not be null");
             } else {
@@ -161,7 +166,7 @@ public class BiDimensionalMap <T> {
             }
         }
 
-        /*Adds a Collection <T> to the BiDimensionalMap at (x, y) if none exists.
+        /**Adds a Collection<T> to the BiDimensionalMap at (x, y) if none exists.
           Can safely add markers to points.get(x).get(y) or get(x,y) after running this method.
         */
         private Collection<T> addCollectionToMapAtXY(){
@@ -178,14 +183,12 @@ public class BiDimensionalMap <T> {
                 //can move on to checking for a y at this location
             }
             if (!collectionExistsAtXY(x, y)) {
-                Supplier<Collection<T>> newCollectionFactory = HashSet::new;
-                points.get(x).put(y, newCollectionFactory.get());
+                points.get(x).put(y, collectionFactory.get()); //todo this is what its for right?
             } else {
                 //Collection exists at (x, y)! do nothing
             }
             return get(x,y);
         }
-
     }
 
 }
