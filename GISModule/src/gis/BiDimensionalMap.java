@@ -33,14 +33,13 @@ public class BiDimensionalMap <T> {
 
 
     private void validateBigDecimal(BigDecimal d){
-        if (d == null) {
-            throw new NullPointerException("Coordinate component can not be null");
-        }
+        Objects.requireNonNull(d, "Coordinate component can not be null");
     }
 
     /**True if points has a SortedMap at x (that can store a collection of markers at a certain y coordinate).
     No markers need to exist to return true, just the Map */
     private boolean mapExistAtX(BigDecimal x){
+        validateBigDecimal(x);
         return points.containsKey(x);
     }
 
@@ -53,6 +52,74 @@ public class BiDimensionalMap <T> {
         } else {
             return false;
         }
+    }
+
+    /**
+     *
+     * @return the collection of x coordinates in the map, or an empty set if none exist.
+     */
+    public final Set<BigDecimal> xSet() {
+        //TODO!!! test! do i need check?
+        Set<BigDecimal> set = new HashSet<>();
+        for (BigDecimal xSets : points.keySet()) {
+            set.add(xSets);
+        }
+        return set;
+    }
+
+    /**
+     * @return the collection of y coordinates in the map corresponding to the given x,
+     *or an empty set if none exist.
+     */
+    public final Set<BigDecimal> ySet(BigDecimal x) {
+        //TODO!!! test! also figure out my question
+        validateBigDecimal(x);
+        Set<BigDecimal> set = new HashSet<>();
+        if (!mapExistAtX(x)){
+            return set;
+        }
+        for (BigDecimal ySets : points.get(x).keySet()){
+            set.add(ySets);
+        }
+        return set;
+    }
+
+    /**
+     *
+     * @return the list of coordinates sorted by their compareTo, or an empty list if none exist
+     */
+    public final List<Coordinate> coordinateSet(){
+        //todo!!! Test! stream?
+        List<Coordinate> coordinateList = new ArrayList<>();
+        Set<BigDecimal> xSet = xSet();
+
+        X_VALUES_IN_POINTS:
+        for (BigDecimal xInSet : xSet) {
+            Set<BigDecimal> ySet = ySet(xInSet);
+
+            Y_VALUES_FOR_EACH_X:
+            for (BigDecimal yInSet : ySet) {
+                coordinateList.add(new Coordinate(xInSet, yInSet));
+            }
+        }
+
+        return coordinateList;
+    }
+
+    /**
+     *
+     * @return a list of contents from points, implicitly sorted by their coordinates.
+     */
+    public final List<Collection<T>> collectionList(){
+        //todo: test!
+        List<Collection<T>> collections = new ArrayList<>();
+        List<Coordinate> coordinateSet = coordinateSet();
+
+        for (Coordinate coordinate : coordinateSet) {
+            //todo: validate coordinate or assume its good?
+            collections.add(points.get(coordinate.x()).get(coordinate.y()));
+        }
+        return collections;
     }
 
     public Updater getUpdater(){
@@ -74,7 +141,7 @@ public class BiDimensionalMap <T> {
 
 
         public final Updater setCoordinate(Coordinate coordinate) {
-            Coordinate.validate(coordinate);
+            coordinate.validate();
             setX(coordinate.x());
             setY(coordinate.y());
             return this;
@@ -121,18 +188,13 @@ public class BiDimensionalMap <T> {
 
         /**add a marker to values. Need to use add() or set() to add to the BiDimensionalMap
          *
-         * @param value The marker to be added a list of values
+         * @param value The (non-null) marker to be added a list of values
          * @return this Updater
          */
         public final Updater addValue(T value){
-            //todo can add if i want Objects.requireNonNull(x, "message")
-            //Objects.requireNonNull(value, "Value can not be null");
-            if (value == null){
-                throw new NullPointerException("Value can not be null");
-            } else {
-                values.add(value);
-                return this;
-            }
+            Objects.requireNonNull(value, "Value can not be null");
+            values.add(value);
+            return this;
         }
 
         /**Replace the markers at (x, y) in the {@code BiDimensionalMap} with the markers added with {@code addValue(T value)}

@@ -1,12 +1,17 @@
-package gis;
+package gis.test;
 
+import gis.Coordinate;
+import gis.InterestPoint;
 import org.junit.jupiter.api.Test;
-
-import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class InterestPointTest {
+    //used in multiple tests
+    static InterestPoint<String> originPoint = new InterestPoint<>(Coordinate.ORIGIN, "OriginPoint");
+    static InterestPoint<String> pointAt1x1 = new InterestPoint<>(CoordinateTest.c1x1, "PointAt1x1");
+
+
     @Test
     void validate() {
         Coordinate nullXYCoordinate = new Coordinate(null, null);
@@ -27,9 +32,9 @@ class InterestPointTest {
 
     @Test
     void hasMarker() {
-        final String HOME = "HOME";
-        final String NEW_STRING_HOME = "HOME";
-        final String HOMETOWN = "HOMETOWN";
+        final String HOME = "Home";
+        final String NEW_STRING_HOME = "Home";
+        final String HOMETOWN = "Hometown";
         InterestPoint<String> point = new InterestPoint<>(Coordinate.ORIGIN, HOME);
         assertTrue(point.hasMarker(NEW_STRING_HOME));
         assertFalse(point.hasMarker(HOMETOWN));
@@ -38,7 +43,6 @@ class InterestPointTest {
     @Test
     void testToString() {
         //Verify the printed interestPoint makes sense
-        InterestPoint<String> interestPoint = new InterestPoint<>(Coordinate.ORIGIN, "HOME");
-        System.out.println(interestPoint);
+        System.out.println(originPoint);
     }
 }

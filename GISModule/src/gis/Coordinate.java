@@ -13,7 +13,7 @@ import java.util.Objects;
  */
 public record Coordinate(BigDecimal x, BigDecimal y) implements Comparable<Coordinate>{
 
-    //todo add constructor that validates
+    //todo add constructor that validates?
 
     public static final Coordinate validate(Coordinate coordinate){
         Objects.requireNonNull(coordinate, "Coordinate can not be null");
@@ -37,13 +37,13 @@ public record Coordinate(BigDecimal x, BigDecimal y) implements Comparable<Coord
     public int compareTo(Coordinate other) {
         this.validate();
         other.validate();
-        //todo simplify and or add to ne line
-        boolean thisLessThanOtherTest1 = this.x.compareTo(other.x) < 0;
-        boolean thisLessThanOtherTest2 = (this.x.compareTo(other.x)==0) && (this.y.compareTo(other.y) < 0);
+        //todo simplify! McCabe = 5
+        int compareX = this.x.compareTo(other.x);
+        int compareY = this.y.compareTo(other.y);
 
-        if (thisLessThanOtherTest1 || thisLessThanOtherTest2){
+        if (compareX < 0 || (compareX==0) && (compareY < 0)){
             return -1;
-        } else if ((this.x.compareTo(other.x) == 0) && (this.y.compareTo(other.y) == 0)) {
+        } else if ((compareX == 0) && (compareY == 0)) {
             return 0;
         } else {
             return 1;
