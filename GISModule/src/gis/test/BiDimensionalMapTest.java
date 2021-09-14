@@ -15,11 +15,12 @@ class BiDimensionalMapTest {
     //used in multiple tests
     static Coordinate c1x1 = new Coordinate(new BigDecimal(1), new BigDecimal(1));
     static InterestPoint<String> pointAt1x1 = InterestPointTest.pointAt1x1;
+    static InterestPoint<String> pointAt1x1b = new InterestPoint<>(CoordinateTest.c1x1, "PointAt1x1b");
     static InterestPoint<String> originPoint = InterestPointTest.originPoint;
     static InterestPoint<String> pointAt1x0 = new InterestPoint<>(CoordinateTest.c1x0, "PointAt1x0");
     static InterestPoint<String> pointAt0x1 = new InterestPoint<>(CoordinateTest.c0x1, "PointAt0x1");
     static InterestPoint<String> [] interestPoints = new InterestPoint[] {
-            pointAt1x1, originPoint, pointAt1x0, pointAt0x1
+            pointAt1x1, originPoint, pointAt1x0, pointAt0x1, pointAt1x1b
     };
 
 
@@ -107,7 +108,10 @@ class BiDimensionalMapTest {
     @Test
     public void testxSet(){
         //todo!
-        BiDimensionalMap<InterestPoint<String>> testMap = makeTestMapWithPoints(interestPoints);
+        BiDimensionalMap<InterestPoint<String>> testMap = new BiDimensionalMap<>();
+        assertTrue(testMap.xSet().isEmpty()); //verifies that an empty set is created when no points exist
+        testMap = makeTestMapWithPoints(interestPoints);
+
         Set<BigDecimal> myXSet = Arrays.stream(interestPoints)
                 .map(InterestPoint::coordinate)
                 .map(Coordinate::x)
@@ -120,20 +124,36 @@ class BiDimensionalMapTest {
     public void testYSet(){
         //todo!
         BiDimensionalMap<InterestPoint<String>> testMap = makeTestMapWithPoints(interestPoints);
-        //.....
+
+
+        for (InterestPoint<String> point : interestPoints) {
+            Set<BigDecimal> myYSet = Arrays.stream(interestPoints)
+                    .map(InterestPoint::coordinate)
+                    .map(Coordinate::y)
+                    .collect(Collectors.toSet());
+
+            assertEquals(testMap.ySet(point.coordinate().x()), myYSet);
+        }
+
     }
 
     @Test
     public void testCoordinateSet(){
         //todo!
         BiDimensionalMap<InterestPoint<String>> testMap = makeTestMapWithPoints(interestPoints);
-        System.out.println(testMap.coordinateSet());
+        List<Coordinate> myCoordinateSet = Arrays.stream(interestPoints)
+                .map(InterestPoint::coordinate)
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+        assertEquals(testMap.coordinateSet(), myCoordinateSet);
     }
 
     @Test
     public void testCollectionList(){
         //todo!
         BiDimensionalMap<InterestPoint<String>> testMap = makeTestMapWithPoints(interestPoints);
+
         System.out.println(testMap.collectionList());
     }
 

@@ -2,7 +2,9 @@ package gis;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * A 2D map used to store information about landmarks in a geographical area.
@@ -61,9 +63,7 @@ public class BiDimensionalMap <T> {
     public final Set<BigDecimal> xSet() {
         //TODO!!! test! do i need check?
         Set<BigDecimal> set = new HashSet<>();
-        for (BigDecimal xSets : points.keySet()) {
-            set.add(xSets);
-        }
+        set = points.keySet();
         return set;
     }
 
@@ -74,13 +74,10 @@ public class BiDimensionalMap <T> {
     public final Set<BigDecimal> ySet(BigDecimal x) {
         //TODO!!! test! also figure out my question
         validateBigDecimal(x);
-        Set<BigDecimal> set = new HashSet<>();
         if (!mapExistAtX(x)){
-            return set;
+            return null;
         }
-        for (BigDecimal ySets : points.get(x).keySet()){
-            set.add(ySets);
-        }
+        Set<BigDecimal> set = points.get(x).keySet();
         return set;
     }
 
@@ -102,7 +99,6 @@ public class BiDimensionalMap <T> {
                 coordinateList.add(new Coordinate(xInSet, yInSet));
             }
         }
-
         return coordinateList;
     }
 
@@ -112,14 +108,38 @@ public class BiDimensionalMap <T> {
      */
     public final List<Collection<T>> collectionList(){
         //todo: test!
-        List<Collection<T>> collections = new ArrayList<>();
         List<Coordinate> coordinateSet = coordinateSet();
 
-        for (Coordinate coordinate : coordinateSet) {
-            //todo: validate coordinate or assume its good?
-            collections.add(points.get(coordinate.x()).get(coordinate.y()));
-        }
+        List<Collection<T>>  collections = coordinateSet.stream()
+                .map(coordinate -> points.get(coordinate.x()).get(coordinate.y()))
+                .collect(Collectors.toList());
+
         return collections;
+    }
+
+    public final long collectionSize() {
+        //todo test! doc
+        return collectionListToMarkerList(collectionList()).size();
+    }
+
+
+    public final long collectionSize(Predicate <? super T> filter){
+        //todo test! doc
+        Objects.requireNonNull(filter, "Filter can not be null");
+        Collection<T> filteredMarkerList = collectionListToMarkerList(collectionList()).stream()
+                .filter(filter)
+                .collect(Collectors.toList());
+
+        return filteredMarkerList.size();
+    }
+
+    private Collection<T> collectionListToMarkerList(List<Collection<T>> collectionList) {
+        assert collectionList!=null;
+
+        Collection<T> markerList = new ArrayList<>();
+        collectionList.stream()
+                .forEach(collection -> markerList.addAll(collection));
+        return markerList;
     }
 
     public Updater getUpdater(){
