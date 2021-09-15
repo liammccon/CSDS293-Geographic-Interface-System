@@ -18,6 +18,10 @@ public class BiDimensionalMap <T> {
       get a map of all collections of markers ( with points.get(x).get(y) ) at y locations for that x */
     private final SortedMap<BigDecimal, SortedMap<BigDecimal, Collection<T> > > points = new TreeMap<>();
 
+    /**
+     * Gets the collection of markers at the given (x, y) coordinates.
+     * @return The collection if it exists, or null if no collection exists there
+     */
     public final Collection<T> get(BigDecimal x, BigDecimal y){
         validateBigDecimal(x);
         validateBigDecimal(y);
@@ -25,10 +29,14 @@ public class BiDimensionalMap <T> {
             return points.get(x).get(y);
         }
         else {
-            throw new NullPointerException("No collection exists at coordinates (x = " + x + ", y = " + y);
+            return null;
         }
     }
 
+    /**
+     * Gets the collection of markers at the given coordinate.
+     * @return The collection if it exists, or null if no collection exists there
+     */
     public final Collection<T> get(Coordinate coordinate) {
         return get(coordinate.x(), coordinate.y());
     }
@@ -62,8 +70,7 @@ public class BiDimensionalMap <T> {
      */
     public final Set<BigDecimal> xSet() {
         //TODO!!! test! do i need check?
-        Set<BigDecimal> set = new HashSet<>();
-        set = points.keySet();
+        Set<BigDecimal> set = points.keySet();
         return set;
     }
 
@@ -86,7 +93,7 @@ public class BiDimensionalMap <T> {
      * @return the list of coordinates sorted by their compareTo, or an empty list if none exist
      */
     public final List<Coordinate> coordinateSet(){
-        //todo!!! Test! stream?
+        //todo!!! Stream or no?! maybe make inner loop into method
         List<Coordinate> coordinateList = new ArrayList<>();
         Set<BigDecimal> xSet = xSet();
 
@@ -98,8 +105,15 @@ public class BiDimensionalMap <T> {
             for (BigDecimal yInSet : ySet) {
                 coordinateList.add(new Coordinate(xInSet, yInSet));
             }
-        }
-        return coordinateList;
+        }//deleteme?
+
+        List<Coordinate> coordinateListStreamTest = new ArrayList<>();
+        xSet().stream()
+                .forEach(x -> ySet(x).stream()
+                                .forEach( y -> coordinateListStreamTest.add(new Coordinate(x, y)) )
+                ); //deleteme?
+
+        return coordinateListStreamTest;
     }
 
     /**
@@ -140,6 +154,11 @@ public class BiDimensionalMap <T> {
         collectionList.stream()
                 .forEach(collection -> markerList.addAll(collection));
         return markerList;
+    }
+
+    public String toString() {
+        //todo make it nicer?
+        return collectionListToMarkerList(collectionList()).toString();
     }
 
     public Updater getUpdater(){
