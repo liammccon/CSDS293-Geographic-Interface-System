@@ -1,9 +1,11 @@
 package gis.test;
 
 import gis.Coordinate;
+import gis.Rectangle;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,32 +19,25 @@ class CoordinateTest {
     static Coordinate c0x1 = new Coordinate(d0, d1);
     static Coordinate c1x0 = new Coordinate(d1, d0);
     static Coordinate c1x1 = new Coordinate(d1, d1);
+    static final Coordinate [][] coordinateGrid2x2 = { {c0x0, c0x1},
+                                                        {c1x0, c1x1} };
+
+    static Coordinate nullPoint = null;
+    static Coordinate nullY = new Coordinate(new BigDecimal(3), null);
+    static Coordinate nullXandY = new Coordinate(null, null);
 
     @Test
     public void testValidate(){ //tests both validate methods
-        Coordinate nullPoint = null;
-        Coordinate nullY = new Coordinate(new BigDecimal(3), null);
-        Coordinate nullXandY = new Coordinate(null, null);
+        Coordinate [] invalidCoordinates = {
+                nullPoint,
+                nullY,
+                nullXandY
+        };
 
-        assertThrows(NullPointerException.class, ()->{
-            nullPoint.validate();
-        } );
-
-        assertThrows(NullPointerException.class, ()->{
-            nullY.validate();
-        } );
-
-        assertThrows(NullPointerException.class, ()->{
-            nullXandY.validate();
-        } );
-
-        assertThrows(NullPointerException.class, ()->{
-            Coordinate.validate(null);
-        });
-
-        assertThrows(NullPointerException.class, ()->{
-            Coordinate.validate(nullY);
-        });
+        for (Coordinate coordinate : invalidCoordinates) {
+            assertThrows(NullPointerException.class, () -> coordinate.validate());
+            assertThrows(NullPointerException.class, () -> Coordinate.validate(coordinate));
+        }
     }
 
     @Test
@@ -71,6 +66,7 @@ class CoordinateTest {
         assertTrue(c0x0.compareTo(c0x1)<0);
         assertTrue(c0x0.compareTo(c1x0)<0);
         assertTrue(c0x0.compareTo(c1x1) < 0);
+        assertTrue(c1x1.compareTo(c1x0) > 0);
         assertTrue(c1x0.compareTo(c0x0) > 0);
     }
 

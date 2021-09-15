@@ -157,8 +157,58 @@ public class BiDimensionalMap <T> {
     }
 
     public String toString() {
-        //todo make it nicer?
+        //todo make it nicer? just say collectionList.toString??
         return collectionListToMarkerList(collectionList()).toString();
+    }
+
+    /**
+     * Returns a new BiDimensionalMap containing the points in the rectangle.
+     * The points along the bottom and left borders of the rectangle are included,
+     * but not those along the top and right borders.
+     */
+    public final BiDimensionalMap<T> slice(Rectangle rectangle){
+        //todo test. too much repeated code? make that into a method?
+        rectangle.validate();
+        BiDimensionalMap<T> map = new BiDimensionalMap<>();
+
+        for (BigDecimal x : xSet()) {
+
+            int compareXToLeft = x.compareTo(rectangle.left());
+            int compareXToRight = x.compareTo(rectangle.right());
+
+            if (compareXToLeft < 0) {
+                //do nothing! This coordinate is to the left of rectangle
+            } else if (compareXToLeft >=0 && compareXToRight < 0) {
+                //x value is within bounds, process the corresponding y values
+                checkYForSlice(map, rectangle, x);
+            } else { //x is on or to the right of the right border. Can stop search
+                break;
+            }
+
+        }
+
+        return null;
+    }
+
+    //helper method for slice()
+    private void checkYForSlice(BiDimensionalMap<T> map, Rectangle rectangle, BigDecimal x) {
+        assert(map!=null);
+
+        for (BigDecimal y : ySet(x)){
+
+            int compareYToBottom = y.compareTo(rectangle.bottom());
+            int compareYToTop = y.compareTo(rectangle.top());
+
+            if (compareYToBottom < 0) {
+                //do nothing! This coordinate is below the rectangle
+            } else if (compareYToBottom >=0 && compareYToTop < 0) {
+                //(x, y) coordinate is within bounds, add to the map
+                map.get(x, y).addAll(get(x, y));
+            } else { //x is on or to the right of the right border. Can stop search
+                break;
+            }
+        }
+
     }
 
     public Updater getUpdater(){

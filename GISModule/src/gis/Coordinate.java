@@ -41,13 +41,17 @@ public record Coordinate(BigDecimal x, BigDecimal y) implements Comparable<Coord
         int compareX = this.x.compareTo(other.x);
         int compareY = this.y.compareTo(other.y);
 
-        if (compareX < 0 || (compareX==0) && (compareY < 0)){
+        if (isLessThan(compareX, compareY) ){
             return -1;
         } else if ((compareX == 0) && (compareY == 0)) {
             return 0;
         } else {
             return 1;
         }
+    }
+
+    private boolean isLessThan(int compareX, int compareY) {
+        return (compareX < 0) || ((compareX == 0) && (compareY < 0));
     }
 
     public String toSimpleString(){
