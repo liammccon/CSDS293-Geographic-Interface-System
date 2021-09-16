@@ -69,7 +69,6 @@ public class BiDimensionalMap <T> {
      * @return the collection of x coordinates in the map, or an empty set if none exist.
      */
     public final Set<BigDecimal> xSet() {
-        //TODO!!! test! do i need check?
         Set<BigDecimal> set = points.keySet();
         return set;
     }
@@ -79,7 +78,6 @@ public class BiDimensionalMap <T> {
      *or an empty set if none exist.
      */
     public final Set<BigDecimal> ySet(BigDecimal x) {
-        //TODO!!! test! also figure out my question
         validateBigDecimal(x);
         if (!mapExistAtX(x)){
             return null;
@@ -93,7 +91,6 @@ public class BiDimensionalMap <T> {
      * @return the list of coordinates sorted by their compareTo, or an empty list if none exist
      */
     public final List<Coordinate> coordinateSet(){
-        //todo!!! Stream or no?! maybe make inner loop into method
         List<Coordinate> coordinateList = new ArrayList<>();
         Set<BigDecimal> xSet = xSet();
 
@@ -105,15 +102,9 @@ public class BiDimensionalMap <T> {
             for (BigDecimal yInSet : ySet) {
                 coordinateList.add(new Coordinate(xInSet, yInSet));
             }
-        }//deleteme?
+        }
 
-        List<Coordinate> coordinateListStreamTest = new ArrayList<>();
-        xSet().stream()
-                .forEach(x -> ySet(x).stream()
-                                .forEach( y -> coordinateListStreamTest.add(new Coordinate(x, y)) )
-                ); //deleteme?
-
-        return coordinateListStreamTest;
+        return coordinateList;
     }
 
     /**
@@ -121,24 +112,24 @@ public class BiDimensionalMap <T> {
      * @return a list of contents from points, implicitly sorted by their coordinates.
      */
     public final List<Collection<T>> collectionList(){
-        //todo: test!
         List<Coordinate> coordinateSet = coordinateSet();
 
-        List<Collection<T>>  collections = coordinateSet.stream()
+        return coordinateSet.stream()
                 .map(coordinate -> points.get(coordinate.x()).get(coordinate.y()))
                 .collect(Collectors.toList());
-
-        return collections;
     }
 
+    /**
+     * @return the number of markers in the map
+     */
     public final long collectionSize() {
-        //todo test! doc
         return collectionListToMarkerList(collectionList()).size();
     }
 
-
+    /**
+     * @return the number of markers in the map that fit a filter
+     */
     public final long collectionSize(Predicate <? super T> filter){
-        //todo test! doc
         Objects.requireNonNull(filter, "Filter can not be null");
         Collection<T> filteredMarkerList = collectionListToMarkerList(collectionList()).stream()
                 .filter(filter)
@@ -147,17 +138,17 @@ public class BiDimensionalMap <T> {
         return filteredMarkerList.size();
     }
 
+    //Converts the list of all collections of markers into just a list of markers
     private Collection<T> collectionListToMarkerList(List<Collection<T>> collectionList) {
         assert collectionList!=null;
 
         Collection<T> markerList = new ArrayList<>();
-        collectionList.stream()
+        collectionList
                 .forEach(collection -> markerList.addAll(collection));
         return markerList;
     }
 
     public String toString() {
-        //todo make it nicer? just say collectionList.toString??
         return collectionListToMarkerList(collectionList()).toString();
     }
 
@@ -167,7 +158,6 @@ public class BiDimensionalMap <T> {
      * but not those along the top and right borders.
      */
     public final BiDimensionalMap<T> slice(Rectangle rectangle){
-        //todo test. too much repeated code? make that into a method?
         rectangle.validate();
         BiDimensionalMap<T> map = new BiDimensionalMap<>();
 
@@ -184,15 +174,14 @@ public class BiDimensionalMap <T> {
             } else { //x is on or to the right of the right border. Can stop search
                 break;
             }
-
         }
-
-        return null;
+        return map;
     }
 
     //helper method for slice()
     private void checkYForSlice(BiDimensionalMap<T> map, Rectangle rectangle, BigDecimal x) {
         assert(map!=null);
+        assert(x!=null);
 
         for (BigDecimal y : ySet(x)){
 
@@ -201,14 +190,28 @@ public class BiDimensionalMap <T> {
 
             if (compareYToBottom < 0) {
                 //do nothing! This coordinate is below the rectangle
-            } else if (compareYToBottom >=0 && compareYToTop < 0) {
+            } else if (compareYToTop < 0) {
                 //(x, y) coordinate is within bounds, add to the map
-                map.get(x, y).addAll(get(x, y));
+                copyValuesToMap(map, x, y);
             } else { //x is on or to the right of the right border. Can stop search
                 break;
             }
         }
 
+    }
+
+    //Helper for slice(). Copies the values from points.get(x,y) to the map
+    private void copyValuesToMap(BiDimensionalMap<T> map, BigDecimal x, BigDecimal y) {
+        Updater updater = map.getUpdater();
+        updater.setX(x);
+        updater.setY(y);
+
+        assert(collectionExistsAtXY(x, y)); //should not fail unless other code was changed
+
+        for (T value : get(x, y)){
+            updater.addValue(value);
+        }
+        updater.add();
     }
 
     public Updater getUpdater(){
@@ -248,11 +251,10 @@ public class BiDimensionalMap <T> {
             return this;
         }
 
-
         //Gives the initial instance of the collection stored at the (x,y) coordinates
         private Supplier<Collection<T>> collectionFactory = HashSet::new;
 
-        //todo might not need? - if public defeats purpose
+        //todo might not need? - breaks encapsulation?
         public final Updater setCollectionFactory(Supplier<Collection<T>> collectionFactory){
             if (collectionFactory == null) {
                 throw new NullPointerException("CollectionFactory can not be null");
@@ -265,7 +267,7 @@ public class BiDimensionalMap <T> {
         //Stores the markers to be added to the Map with add() or set()
         private Collection<T> values = collectionFactory.get();
 
-        //todo might not need? - if public defeats purpose
+        //todo might not need? - breaks encapsulation?
         public final Updater setValues(Collection<T> values){
             if (values == null){
                 throw new NullPointerException("Values can not be null");
@@ -334,7 +336,7 @@ public class BiDimensionalMap <T> {
                 //can move on to checking for a y at this location
             }
             if (!collectionExistsAtXY(x, y)) {
-                points.get(x).put(y, collectionFactory.get()); //todo this is what its for right?
+                points.get(x).put(y, collectionFactory.get());
             } else {
                 //Collection exists at (x, y)! do nothing
             }

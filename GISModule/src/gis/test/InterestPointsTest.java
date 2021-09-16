@@ -5,15 +5,12 @@ import gis.InterestPoint;
 import gis.InterestPoints;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class InterestPointsTest {
-    static InterestPoint<String> [] interestPointArray = BiDimensionalMapTest.interestPointArray;
+    static InterestPoint<String> [] interestPointArray = BiDimensionalMapTest.makeInterestPointArrayWithDuplicate();
 
     @Test
     public void testAddAndGet(){
@@ -26,8 +23,6 @@ class InterestPointsTest {
         //testing invalid interestPoint
         InterestPoints.Builder builder = new InterestPoints.Builder();
         assertFalse(builder.add(new InterestPoint<>(Coordinate.ORIGIN, null)));
-
-
     }
 
     private InterestPoints interestPointsFromArray(InterestPoint<String> [] interestPointArray){
