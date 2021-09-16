@@ -3,6 +3,7 @@ package gis.test;
 import gis.Coordinate;
 import gis.Rectangle;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.css.Rect;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -15,13 +16,12 @@ class RectangleTest {
 
     @Test
     void testValidate() {
-        Rectangle [] invalidRectangles = { //todo take this approach earlier
+        Rectangle [] invalidRectangles = {
                 new Rectangle(grid[0][1], null),
                 new Rectangle(grid[1][0], CoordinateTest.nullY),
                 new Rectangle(grid[1][0], grid[0][0]),
                 new Rectangle(grid[0][0], grid[0][0]),
                 new Rectangle(grid[1][1], grid[1][0]),
-
         };
 
         for (Rectangle rectangle : invalidRectangles) {
@@ -49,5 +49,11 @@ class RectangleTest {
         assertEquals(r.bottom(), decimals[1]);
         assertEquals(r.top(), decimals[3]);
 
+    }
+
+    @Test
+    public void testToString (){
+        Rectangle rectangle = new Rectangle(Coordinate.ORIGIN, grid[1][1]);
+        System.out.println("Testing rectangle.toString " + rectangle);
     }
 }

@@ -43,6 +43,6 @@ class InterestPointTest {
     @Test
     void testToString() {
         //Verify the printed interestPoint makes sense
-        System.out.println(originPoint);
+        System.out.println("Testing toString for Coordinate: " + originPoint);
     }
 }

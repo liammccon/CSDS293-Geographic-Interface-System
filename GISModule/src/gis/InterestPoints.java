@@ -14,7 +14,6 @@ public final class InterestPoints {
 
     private InterestPoints(Builder builder) {
         assert(builder!=null);
-        //todo deletes all the points when you do this?! or u just keep same builder?
         this.points = builder.points;
     }
 
@@ -22,13 +21,11 @@ public final class InterestPoints {
      * @return the interest points at the given coordinate, or null if none exists there
      */
     public final Collection<InterestPoint> get (Coordinate coordinate) {
-        //deleteme returns the interest points at the given valid coordinate, and deals with the error if the coordinate is invalid.
-        coordinate.validate(); //todo deal with this with try catch? And should it throw error if no point exists
+        coordinate.validate();
         return points.get(coordinate);
     }
 
     public final List<Collection<InterestPoint>> interestPoints(){
-        //todo test
         return points.collectionList();
     }
 
@@ -38,7 +35,6 @@ public final class InterestPoints {
 
     public static class Builder {
 
-        //todo why?!
         private final BiDimensionalMap<InterestPoint> points = new BiDimensionalMap<>();
 
         /**
@@ -49,7 +45,6 @@ public final class InterestPoints {
          * or true if successfully added
          */
         public final boolean add(InterestPoint interestPoint) {
-            //todo: is that what he meant by handled? and test and doc
             try {
                 interestPoint.validate();
             } catch (NullPointerException e) {
@@ -67,7 +62,6 @@ public final class InterestPoints {
          * @return new InterestPoints instance with any points previously added.
          */
         public final InterestPoints build(){
-            //todo this right?
             return new InterestPoints(this);
         }
     }

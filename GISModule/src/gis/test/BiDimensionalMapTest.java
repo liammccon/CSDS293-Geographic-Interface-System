@@ -3,31 +3,58 @@ package gis.test;
 import gis.BiDimensionalMap;
 import gis.Coordinate;
 import gis.InterestPoint;
+import gis.Rectangle;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class BiDimensionalMapTest {
+
     //used in multiple tests
-    private static Coordinate[][] grid = CoordinateTest.coordinateGrid2x2;
-    static InterestPoint<String> pointAt1x1 = InterestPointTest.pointAt1x1;
-    static InterestPoint<String> pointAt1x1b = new InterestPoint<>(grid[1][1], "PointAt1x1b");
-    static InterestPoint<String> originPoint = InterestPointTest.originPoint;
-    static InterestPoint<String> pointAt1x0 = new InterestPoint<>(grid[1][0], "PointAt1x0");
-    static InterestPoint<String> pointAt0x1 = new InterestPoint<>(grid[0][1], "PointAt0x1");
-    static InterestPoint<String> [] interestPointArray2x2 = new InterestPoint[] {
-            pointAt1x1, originPoint, pointAt1x0, pointAt0x1, pointAt1x1b
-    };
+    BiDimensionalMap<InterestPoint<String>> testMap = makeTestMapWithPoints(interestPointArray);
 
+    static InterestPoint<String> [] interestPointArray = makeInterestPointArrayWithDuplicate();
 
+    static InterestPoint<String> [] makeInterestPointArrayWithDuplicate(){
+        final int UPPER_BOUND = 4;
+        assert (UPPER_BOUND > 2);
+        //will make an array with points in a square this large, starting at (0,0)
+        InterestPoint<String> [] interestPointArray = new InterestPoint [UPPER_BOUND * UPPER_BOUND];
+        int placeInArray = 0;
+
+        X_COORDINATE_LOOP:
+        for (int x = 0; x < UPPER_BOUND; x++ ){
+
+            Y_COORDINATE_LOOP:
+            for (int y = 0; y < UPPER_BOUND; y++){
+                interestPointArray[placeInArray] = newPoint(x, y);
+                placeInArray++;
+            }
+        }
+
+        //creating a duplicate for testing
+        InterestPoint<String> interestPointAt0x0 = interestPointArray[0];
+        interestPointArray[1] = new InterestPoint<String>(Coordinate.ORIGIN, interestPointAt0x0.marker() + "Copy");
+        return interestPointArray;
+
+    }
+
+    //helper with making interestPoints
+    private static InterestPoint newPoint(int x, int y) {
+        Coordinate c = new Coordinate(new BigDecimal(x), new BigDecimal(y));
+        c.validate();
+        return new InterestPoint(c, "pointAt" + x + "x" + y);
+    }
 
 
     @Test
     public void testSet(){
+        InterestPoint<String> pointAt1x1 = newPoint(1,1);
         BiDimensionalMap<InterestPoint<String>> map = new BiDimensionalMap<>();
         addInterestPointToMap(map, pointAt1x1);
         InterestPoint<String> demolitionZone = new InterestPoint<>(pointAt1x1.coordinate(), "DEMOLITION ZONE");
@@ -64,14 +91,14 @@ class BiDimensionalMapTest {
 
     @Test
     public void testAdd(){
-        BiDimensionalMap<InterestPoint<String>> map = makeTestMapWithPoints(interestPointArray2x2);
-        Arrays.stream(interestPointArray2x2)
+        BiDimensionalMap<InterestPoint<String>> mapToAddTo = makeTestMapWithPoints(interestPointArray);
+        Arrays.stream(interestPointArray)
                 .forEach(interestPoint -> {
                     //Passes if map contains the points we added, at the location we added them
-                    assertTrue(map.get(interestPoint.coordinate()).contains(interestPoint));
+                    assertTrue(mapToAddTo.get(interestPoint.coordinate()).contains(interestPoint));
                 });
 
-        BiDimensionalMap<InterestPoint<String>>.Updater updater = map.getUpdater();
+        BiDimensionalMap<InterestPoint<String>>.Updater updater = mapToAddTo.getUpdater();
         boolean addedSomething = updater.add();
         //passes if using add() without calling addValue(...) returns false
         assertFalse(addedSomething);
@@ -103,47 +130,40 @@ class BiDimensionalMapTest {
         });
     }
 
-    //todo: assignment 3 tests. refactor this into old tests?
 
 
+
+    //Assignment 3 tests
 
     @Test
     public void testxSet(){
-        //todo!
-        BiDimensionalMap<InterestPoint<String>> testMap = new BiDimensionalMap<>();
-        assertTrue(testMap.xSet().isEmpty()); //verifies that an empty set is created when no points exist
-        testMap = makeTestMapWithPoints(interestPointArray2x2);
+        BiDimensionalMap<InterestPoint<String>> testXSetMap = new BiDimensionalMap<>();
+        assertTrue(testXSetMap.xSet().isEmpty()); //verifies that an empty set is created when no points exist
+        testXSetMap = makeTestMapWithPoints(interestPointArray);
 
-        Set<BigDecimal> myXSet = Arrays.stream(interestPointArray2x2)
+        Set<BigDecimal> myXSet = Arrays.stream(interestPointArray)
                 .map(InterestPoint::coordinate)
                 .map(Coordinate::x)
                 .collect(Collectors.toSet());
 
-        assertEquals(testMap.xSet(), myXSet);
+        assertEquals(testXSetMap.xSet(), myXSet);
     }
 
     @Test
     public void testYSet(){
-        //todo!
-        BiDimensionalMap<InterestPoint<String>> testMap = makeTestMapWithPoints(interestPointArray2x2);
 
+        for (InterestPoint<String> point : interestPointArray) {
 
-        for (InterestPoint<String> point : interestPointArray2x2) {
-            Set<BigDecimal> myYSet = Arrays.stream(interestPointArray2x2)
-                    .map(InterestPoint::coordinate)
-                    .map(Coordinate::y)
-                    .collect(Collectors.toSet());
+            BigDecimal pointX = point.coordinate().x();
+            BigDecimal pointY = point.coordinate().y();
 
-            assertEquals(testMap.ySet(point.coordinate().x()), myYSet);
+            assertTrue(testMap.ySet(pointX).contains(pointY));
         }
-
     }
 
     @Test
     public void testCoordinateSet(){
-        //todo!
-        BiDimensionalMap<InterestPoint<String>> testMap = makeTestMapWithPoints(interestPointArray2x2);
-        List<Coordinate> myCoordinateSet = Arrays.stream(interestPointArray2x2)
+        List<Coordinate> myCoordinateSet = Arrays.stream(interestPointArray)
                 .map(InterestPoint::coordinate)
                 .distinct()
                 .sorted()
@@ -153,24 +173,60 @@ class BiDimensionalMapTest {
 
     @Test
     public void testCollectionList(){
-        //todo!
-        BiDimensionalMap<InterestPoint<String>> testMap = makeTestMapWithPoints(interestPointArray2x2);
+        List<Collection<InterestPoint<String>>> testMapCollectionList = testMap.collectionList();
 
-        System.out.println("TODO: MAKE TESTCOLLECTIONLIST: " + testMap.collectionList());
+        int numOfInterestPoints = 0;
+        for(Collection<InterestPoint<String>> collection : testMapCollectionList){
+
+            for(InterestPoint<String> interestPoint : collection) {
+                numOfInterestPoints++;
+                //True if each interestPoint in the collectionList was
+                //in the original interestPointArray which was added to the map
+                assertTrue(List.of(interestPointArray).contains(interestPoint));
+            }
+        }
+
+        //Assures that the same number of interestPoints in the collection list is in
+        //the original interestPointArray which was added to the map
+        assertEquals(interestPointArray.length , numOfInterestPoints);
+    }
+
+    @Test
+    public void testCollectionSize(){
+        assertEquals(testMap.collectionSize(), interestPointArray.length);
+
+        BigDecimal bD0 = new BigDecimal(0);
+        Predicate <? super InterestPoint<String>> filter = interestPoint -> interestPoint.coordinate().x().compareTo(bD0) == 0;
+        long filteredSize = testMap.collectionSize(filter);
+        //should return a collection with all points having x = 0
+
+        long compareSize = Arrays.stream(interestPointArray)
+                .filter(filter)
+                .count();
+
+        assertEquals(filteredSize, compareSize);
     }
 
     @Test
     public void testSlice(){
+        //(Could add another test to make sure no coordinates inside the bounds were missed)
+        BigDecimal bD2 = new BigDecimal(2);
+        Coordinate topRight = new Coordinate(bD2, bD2);
 
+        Rectangle rectangle = new Rectangle(Coordinate.ORIGIN, topRight);
+        BiDimensionalMap<InterestPoint<String>> newMap = testMap.slice(rectangle);
+
+        List<Coordinate> newMapCoordinates = newMap.coordinateSet();
+
+        //ensures that the coordinates in the sliced map are within the bounds
+        for (Coordinate coordinate : newMapCoordinates) {
+            assertTrue(coordinate.compareTo(topRight) < 0);
+        }
     }
+
 
     @Test
     public void testToString(){
-        //todo this ok?
-        System.out.println("Calling toString for map: " + makeTestMapWithPoints(interestPointArray2x2));
+        System.out.println("Calling toString for map: " + makeTestMapWithPoints(interestPointArray));
     }
-
-
-
-
 }
