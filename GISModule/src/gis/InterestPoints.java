@@ -54,8 +54,7 @@ public final class InterestPoints {
             BiDimensionalMap.Updater updater = points.getUpdater();
             updater.setCoordinate(interestPoint.coordinate());
             updater.addValue(interestPoint);
-            updater.add();
-            return true;
+            return updater.add();
         }
 
         /**

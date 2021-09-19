@@ -10,7 +10,7 @@ import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CoordinateTest {
-    //Used in several tests static
+    //Used in several tests
     static BigDecimal d0 = new BigDecimal(0);
     static BigDecimal d1 = new BigDecimal(1);
 
@@ -21,7 +21,7 @@ class CoordinateTest {
     static Coordinate c1x1 = new Coordinate(d1, d1);
     static final Coordinate [][] coordinateGrid2x2 = { {c0x0, c0x1},
                                                         {c1x0, c1x1} };
-
+    //invalid points
     static Coordinate nullPoint = null;
     static Coordinate nullY = new Coordinate(new BigDecimal(3), null);
     static Coordinate nullXandY = new Coordinate(null, null);

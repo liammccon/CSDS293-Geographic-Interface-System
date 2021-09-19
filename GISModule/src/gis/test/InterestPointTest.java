@@ -4,13 +4,21 @@ import gis.Coordinate;
 import gis.InterestPoint;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class InterestPointTest {
     //used in multiple tests
-    static InterestPoint<String> originPoint = new InterestPoint<>(Coordinate.ORIGIN, "OriginPoint");
-    static InterestPoint<String> pointAt1x1 = new InterestPoint<>(CoordinateTest.c1x1, "PointAt1x1");
+    static InterestPoint<String> originPoint = newPoint(0, 0);
+    static InterestPoint<String> pointAt1x1 = newPoint(1, 1);
 
+    //helper with making interestPoints
+    static InterestPoint newPoint(int x, int y) {
+        Coordinate c = new Coordinate(new BigDecimal(x), new BigDecimal(y));
+        c.validate();
+        return new InterestPoint(c, "pointAt" + x + "x" + y);
+    }
 
     @Test
     void validate() {

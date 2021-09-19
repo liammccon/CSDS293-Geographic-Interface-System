@@ -35,9 +35,15 @@ public record Coordinate(BigDecimal x, BigDecimal y) implements Comparable<Coord
      */
     @Override
     public int compareTo(Coordinate other) {
+        //todo change so that it makes sure that it validates a rectangle??? or not cause this is used elsewhere?
+        /*
+        just do
+        x1.compareTo(x2)
+        y1.compareTo(y2)
+         */
         this.validate();
         other.validate();
-        //todo simplify! McCabe = 5
+
         int compareX = this.x.compareTo(other.x);
         int compareY = this.y.compareTo(other.y);
 

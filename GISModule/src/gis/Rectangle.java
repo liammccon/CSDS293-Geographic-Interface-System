@@ -7,20 +7,24 @@ public record Rectangle(Coordinate bottomLeft, Coordinate topRight) {
 
     /**
      * Ensures the rectangle is valid. Will first check that no fields are null.
-     * Then check that Bottom Left is either to the left of topRight
-     * or along the same horizontal but with bottomLeft below topRight.
+     * Then checks that Bottom Left is below and/or to the left of topRight.
+     * Horizontal and vertical lines are valid but a point is not.
      * @return the valid rectangle
      */
     public static final Rectangle validate(Rectangle rectangle) {
+
         Coordinate bottomLeft = rectangle.bottomLeft;
         Coordinate topRight = rectangle.topRight;
         Objects.requireNonNull(rectangle, "Rectangle can not be null");
         Objects.requireNonNull(bottomLeft, "Bottom left coordinate can not be null");
         Objects.requireNonNull(topRight, "Top right coordinate can not be null");
 
-        if (bottomLeft.compareTo(topRight) >= 0 ){
-            throw new IllegalArgumentException("bottomLeft must either be to the left of topRight\n " +
-                    "or along the same horizontal but with bottomLeft below topRight");
+        boolean equalPoints = bottomLeft.compareTo(topRight) == 0;
+        boolean horizontalInvalid = bottomLeft.x().compareTo(topRight.y()) > 0;
+        boolean verticalInvalid = bottomLeft.y().compareTo(topRight.y()) > 0;
+
+        if (equalPoints || horizontalInvalid || verticalInvalid ){
+            throw new IllegalArgumentException("bottomLeft must be below and/or to the left of topRight");
         }
         return rectangle;
     }
