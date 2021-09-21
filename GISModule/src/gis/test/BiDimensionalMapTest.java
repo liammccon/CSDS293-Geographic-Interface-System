@@ -47,11 +47,18 @@ class BiDimensionalMapTest {
 
     @Test
     public void testAddEverywhere(){
-        //todo
         BiDimensionalMap newMap = makeTestMapWithPoints(interestPointArray);
-        newMap.addEverywhere("add!");
-        System.out.println("Testing add everywhere: " + newMap);
+        final String ADDED_VAL = "add!";
+        newMap.addEverywhere(ADDED_VAL);
+        int sizeCount = 0;
+
+        List<Coordinate> coordinates = newMap.coordinateSet();
+        for (Coordinate c : coordinates){
+            sizeCount++;
+            assertTrue(newMap.get(c).contains(ADDED_VAL));
+        }
     }
+
 
     @Test
     public void testSet(){

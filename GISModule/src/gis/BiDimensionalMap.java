@@ -20,8 +20,11 @@ public class BiDimensionalMap <T> {
 
     public BiDimensionalMap() { }//todo need to make constructor? ok to make constructor?
 
-    private BiDimensionalMap ( Collection<BigDecimal> xCoord, Collection<BigDecimal> yCoord) {
-        //todo test
+    /**
+     * Enters a new hashmap in all the coordinates made of (xCoord, yCoord)
+     */
+    BiDimensionalMap ( Collection<BigDecimal> xCoord, Collection<BigDecimal> yCoord) {
+        //todo test? can I?
         for (BigDecimal x: xCoord) {
             validateBigDecimal(x);
 
@@ -107,12 +110,11 @@ public class BiDimensionalMap <T> {
      */
     public final Set<BigDecimal> ySet(BigDecimal x) {
         validateBigDecimal(x);
-        if (!mapExistAtX(x)){
-            throw new IllegalStateException("Each x value should have a corresponding map for y values");
+        if (points.containsKey(x)) {
+            return points.get(x).keySet();
+        } else {
+            throw new IllegalArgumentException("Given x value does not exist yet in the map");
         }
-        //todo instead of this just do
-        //  if points.containsKey(x)?
-        return points.get(x).keySet();
     }
 
     /**
@@ -210,7 +212,6 @@ public class BiDimensionalMap <T> {
 
     //Helper for slice(). Copies the values from points.get(coordinate) to the map
     private void copyValuesToMap(BiDimensionalMap<T> map, Coordinate coordinate) {
-        assert(collectionExistsAtXY(coordinate.x(), coordinate.y())); //should not fail unless other code was changed
 
         Updater updater = map.getUpdater();
         updater.setCoordinate(coordinate);

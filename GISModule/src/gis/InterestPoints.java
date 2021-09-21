@@ -8,7 +8,8 @@ import java.util.List;
  * To use, create a {@code Builder}, then {@code add( interestPoint)} to the builder,
  * then put it in the  BiDimensionalMap with {@code build()}.
  */
-public final class InterestPoints {
+public final class InterestPoints<M> {
+    //todo added <M> here. Should i add it everywhere I use InterestPoint?
 
     private final BiDimensionalMap<InterestPoint> points;
 
@@ -27,6 +28,11 @@ public final class InterestPoints {
 
     public final List<Collection<InterestPoint>> interestPoints(){
         return points.collectionList();
+    }
+
+    public final long count(RectilinearRegion region, M marker){
+        //todo!!
+        return 0;
     }
 
     public String toString(){
