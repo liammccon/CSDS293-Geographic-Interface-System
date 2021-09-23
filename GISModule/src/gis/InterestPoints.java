@@ -1,15 +1,16 @@
 package gis;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Stores InterestPoints in a BiDimensionalMap.
  * To use, create a {@code Builder}, then {@code add( interestPoint)} to the builder,
  * then put it in the  BiDimensionalMap with {@code build()}.
  */
-public final class InterestPoints<M> {
-    //todo added <M> here. Should i add it everywhere I use InterestPoint?
+public final class InterestPoints <M extends Enum<M>> {
 
     private final BiDimensionalMap<InterestPoint> points;
 
@@ -30,10 +31,52 @@ public final class InterestPoints<M> {
         return points.collectionList();
     }
 
+    /**
+     * @return the number of interest points within the non-overlapping region
+     * with the given marker
+     */
     public final long count(RectilinearRegion region, M marker){
-        //todo!!
-        return 0;
+        //Could only fail if using the private region constructor without checking for overlap
+        assert(!region.isOverlapping());
+
+        Collection<InterestPoint> filteredPoints = getFilteredPoints(marker);
+
+        long count = 0;
+        for (InterestPoint point : filteredPoints) {
+
+            if (regionContainsCoordinate(region, point.coordinate())){
+                //true if the point.coordinate() appears in the region
+                count ++;
+            }
+        }
+        return count;
     }
+
+    private Collection<InterestPoint> getFilteredPoints(M marker) {
+        Collection<InterestPoint> filteredPoints = new ArrayList<>();
+
+        for (Collection<InterestPoint> pointCollection : points.collectionList()) {
+            filteredPoints.addAll(pointCollection.stream()
+                    .filter(interestPoint -> interestPoint.hasMarker(marker))
+                    .collect(Collectors.toList())
+            );
+        }
+        return filteredPoints;
+    }
+
+    private boolean regionContainsCoordinate(RectilinearRegion region, Coordinate coordinate) {
+        for (Rectangle rectangle : region.getRectangles()) {
+            //Checks each rectangle slice of points for the given coordinate
+            if (points.slice(rectangle).coordinateSet().contains(coordinate)){
+                return true;
+            } else {
+                //keep checking!
+            }
+        }
+        //Coordinate does not exist in the rectangle set
+        return false;
+    }
+
 
     public String toString(){
         return points.toString();

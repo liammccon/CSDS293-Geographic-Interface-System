@@ -3,6 +3,7 @@ package gis;
 import org.junit.jupiter.params.shadow.com.univocity.parsers.common.DataValidationException;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.Objects;
 
 /**
@@ -12,8 +13,6 @@ import java.util.Objects;
  *@param y the latitude (vertical position) of the coordinate
  */
 public record Coordinate(BigDecimal x, BigDecimal y) implements Comparable<Coordinate>{
-
-    //todo add constructor that validates?
 
     public static final Coordinate validate(Coordinate coordinate){
         Objects.requireNonNull(coordinate, "Coordinate can not be null");
@@ -35,25 +34,14 @@ public record Coordinate(BigDecimal x, BigDecimal y) implements Comparable<Coord
      */
     @Override
     public int compareTo(Coordinate other) {
-        //todo change so that it makes sure that it validates a rectangle??? or not cause this is used elsewhere?
-        /*
-        just do
-        x1.compareTo(x2)
-        y1.compareTo(y2)
-         */
         this.validate();
         other.validate();
 
-        int compareX = this.x.compareTo(other.x);
-        int compareY = this.y.compareTo(other.y);
+        Comparator<Coordinate> compareX = Comparator.comparing(Coordinate::x);
+        Comparator<Coordinate> compareY = Comparator.comparing(Coordinate::y);
+        Comparator<Coordinate> compareXY = compareX.thenComparing(compareY);
 
-        if (isLessThan(compareX, compareY) ){
-            return -1;
-        } else if ((compareX == 0) && (compareY == 0)) {
-            return 0;
-        } else {
-            return 1;
-        }
+        return compareXY.compare(this, other);
     }
 
     private boolean isLessThan(int compareX, int compareY) {

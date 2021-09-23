@@ -5,30 +5,34 @@ import gis.InterestPoint;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class InterestPointTest {
     //used in multiple tests
-    static InterestPoint<String> originPoint = newPoint(0, 0);
-    static InterestPoint<String> pointAt1x1 = newPoint(1, 1);
+    static InterestPoint<Marker> originPoint = newPoint(0, 0);
 
     //helper with making interestPoints
     static InterestPoint newPoint(int x, int y) {
         Coordinate c = new Coordinate(new BigDecimal(x), new BigDecimal(y));
         c.validate();
-        return new InterestPoint(c, "pointAt" + x + "x" + y);
+        return new InterestPoint(c, randomMarker());
+    }
+
+    private static Enum randomMarker() {
+        Random random = new Random();
+        Marker[] values = Marker.values();
+        return values[random.nextInt(values.length)];
     }
 
     @Test
     void validate() {
         Coordinate nullXYCoordinate = new Coordinate(null, null);
-        InterestPoint<String> nullPoint = null;
-        String nullString = null;
 
-        InterestPoint<String> nullCoordinatePoint = new InterestPoint<>(null, "Atlantis");
-        InterestPoint<String> nullXYCoordinatePoint = new InterestPoint<>(nullXYCoordinate, "Mars");
-        InterestPoint<String> nullMarkerPoint = new InterestPoint<>(Coordinate.ORIGIN, nullString);
+        InterestPoint<Marker> nullCoordinatePoint = new InterestPoint<>(null, Marker.CLASSROOM);
+        InterestPoint<Marker> nullXYCoordinatePoint = new InterestPoint<>(nullXYCoordinate, Marker.SCHOOL);
+        InterestPoint<Marker> nullMarkerPoint = new InterestPoint<>(Coordinate.ORIGIN, null);
 
         assertThrows(NullPointerException.class, nullCoordinatePoint::validate);
 
@@ -40,12 +44,9 @@ class InterestPointTest {
 
     @Test
     void hasMarker() {
-        final String HOME = "Home";
-        final String NEW_STRING_HOME = "Home";
-        final String HOMETOWN = "Hometown";
-        InterestPoint<String> point = new InterestPoint<>(Coordinate.ORIGIN, HOME);
-        assertTrue(point.hasMarker(NEW_STRING_HOME));
-        assertFalse(point.hasMarker(HOMETOWN));
+        InterestPoint<Marker> point = new InterestPoint<>(Coordinate.ORIGIN, Marker.HOME);
+        assertTrue(point.hasMarker(Marker.HOME));
+        assertFalse(point.hasMarker(Marker.SCHOOL));
     }
 
     @Test

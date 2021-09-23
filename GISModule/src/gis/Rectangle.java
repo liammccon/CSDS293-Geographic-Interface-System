@@ -20,11 +20,11 @@ public record Rectangle(Coordinate bottomLeft, Coordinate topRight) {
         Objects.requireNonNull(topRight, "Top right coordinate can not be null");
 
         boolean equalPoints = bottomLeft.compareTo(topRight) == 0;
-        boolean horizontalInvalid = bottomLeft.x().compareTo(topRight.y()) > 0;
+        boolean horizontalInvalid = bottomLeft.x().compareTo(topRight.x()) > 0;
         boolean verticalInvalid = bottomLeft.y().compareTo(topRight.y()) > 0;
 
         if (equalPoints || horizontalInvalid || verticalInvalid ){
-            throw new IllegalArgumentException("bottomLeft must be below and/or to the left of topRight");
+            throw new IllegalArgumentException("bottomLeft must be below and to the left of topRight");
         }
         return rectangle;
     }
