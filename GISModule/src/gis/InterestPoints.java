@@ -36,8 +36,7 @@ public final class InterestPoints <M extends Enum<M>> {
      * with the given marker
      */
     public final long count(RectilinearRegion region, M marker){
-        //Could only fail if using the private region constructor without checking for overlap
-        assert(!region.isOverlapping());
+        if (region.isOverlapping()) throw new IllegalArgumentException("Region can not be overlapping");
 
         Collection<InterestPoint> filteredPoints = getFilteredPoints(marker);
 
