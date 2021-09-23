@@ -31,9 +31,21 @@ public class BiDimensionalMap <T> {
             for (BigDecimal y: yCoord) {
                 validateBigDecimal(y);
 
-                addCollectionToMapAtXY(x, y);
+                addEmptyCollection(x, y);
             }
         }
+    }
+
+    /**
+     * For the methods in {@code BiDimensionalMap} to add an empty collection at (x, y) using the updater,
+     * if none exists there
+     */
+    private void addEmptyCollection(BigDecimal x, BigDecimal y) {
+        Updater updater = new Updater();
+        updater.setX(x);
+        updater.setY(y);
+        //will add an empty map since no value has been added
+        updater.add();
     }
 
     /**
@@ -211,7 +223,7 @@ public class BiDimensionalMap <T> {
         if (get(coordinate).isEmpty()) {
             /*no values in the map at this location.
             Add new empty collection to map then exit before trying to copy to that location */
-            map.addCollectionToMapAtXY(coordinate.x(), coordinate.y());
+            map.addEmptyCollection(coordinate.x(), coordinate.y());
             return;
         }
 
@@ -219,27 +231,6 @@ public class BiDimensionalMap <T> {
             updater.addValue(value);
         }
         updater.add();
-    }
-
-    /**Adds a new HashSet to the BiDimensionalMap at (x, y) if none exists there.
-     Can safely add markers to points.get(x).get(y) or get(x,y) after running this method.
-     Used in the Updater and in the private BiDimensionalMap constructor.
-     */
-    private Collection<T> addCollectionToMapAtXY(BigDecimal x, BigDecimal y){
-        if (!points.containsKey(x)){
-            //add the map that will store all of the y maps
-            SortedMap<BigDecimal, Collection<T> >  newMap = new TreeMap<>();
-            points.put(x, newMap);
-        } else {
-            //Map exists at x! so do nothing
-            //can move on to checking for a y at this location
-        }
-        if (!collectionExistsAtXY(x, y)) {
-            points.get(x).put(y, new HashSet<>());
-        } else {
-            //Collection exists at (x, y)! do nothing
-        }
-        return get(x,y);
     }
 
     public Updater getUpdater(){
@@ -282,28 +273,8 @@ public class BiDimensionalMap <T> {
         //Gives the initial instance of the collection stored at the (x,y) coordinates
         private Supplier<Collection<T>> collectionFactory = HashSet::new;
 
-        /* todo breaks encapsulation so commented out
-        public final Updater setCollectionFactory(Supplier<Collection<T>> collectionFactory){
-            if (collectionFactory == null) {
-                throw new NullPointerException("CollectionFactory can not be null");
-            } else {
-                this.collectionFactory = collectionFactory;
-                return this;
-            }
-        } */
-
         //Stores the markers to be added to the Map with add() or set()
         private Collection<T> values = collectionFactory.get();
-
-        /*todo breaks encapsulation so commented out
-        public final Updater setValues(Collection<T> values){
-            if (values == null){
-                throw new NullPointerException("Values can not be null");
-            } else {
-                this.values = values;
-                return this;
-            }
-        } */
 
         /**add a marker to values. Need to use add() or set() to add to the BiDimensionalMap
          *
@@ -321,9 +292,10 @@ public class BiDimensionalMap <T> {
          * if one exists, otherwise returns null
          */
         public final Collection<T> set(){
-            Set<T> previousValues = null;
+            Collection<T> previousValues = null;
             if (collectionExistsAtXY(x, y)) {
-                previousValues = new HashSet<>(get(x, y));
+                previousValues = collectionFactory.get();
+                previousValues.addAll(get(x, y));
             } else {
                 addCollectionToMapAtXY(x, y);
             }
@@ -332,7 +304,8 @@ public class BiDimensionalMap <T> {
             return previousValues;
         }
 
-        /**Add the markers at (x, y) in the {@code BiDimensionalMap} with the markers added with {@code addValue(T value)}
+        /**Add the markers at (x, y) in the {@code BiDimensionalMap} with the markers added with {@code addValue(T value)}.
+         * Adds an empty map if no values have been added.
          * @return true if the markers at (x, y) in the {@code BiDimensionalMap} changed because of this call
          */
         public final boolean add() {
@@ -342,9 +315,30 @@ public class BiDimensionalMap <T> {
             if (values.isEmpty()) {
                 return false;
             } else {
-                get(x,y).addAll(values);
-                return true;
+                //True if the markers in this location changed from adding values
+                return get(x,y).addAll(values);
             }
+        }
+
+        /**Adds a new HashSet to the BiDimensionalMap at (x, y) if none exists there.
+         Can safely add markers to points.get(x).get(y) or get(x,y) after running this method.
+         Used in the Updater and in the private BiDimensionalMap constructor.
+         */
+        private Collection<T> addCollectionToMapAtXY(BigDecimal x, BigDecimal y){
+            if (!points.containsKey(x)){
+                //add the map that will store all of the y maps
+                SortedMap<BigDecimal, Collection<T> >  newMap = new TreeMap<>();
+                points.put(x, newMap);
+            } else {
+                //Map exists at x! so do nothing
+                //can move on to checking for a y at this location
+            }
+            if (!collectionExistsAtXY(x, y)) {
+                points.get(x).put(y, collectionFactory.get());
+            } else {
+                //Collection exists at (x, y)! do nothing
+            }
+            return get(x,y);
         }
     }
 

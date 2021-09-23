@@ -45,7 +45,7 @@ public final class RectilinearRegion {
             List<Coordinate> coordinatesSlice = grid.slice(rectangle).coordinateSet();
 
             for (Coordinate coordinate : coordinatesSlice){
-                BiDimensionalMap.Updater updater = grid.getUpdater();
+                BiDimensionalMap<Rectangle>.Updater updater = grid.getUpdater();
                 updater.setCoordinate(coordinate);
                 updater.addValue(rectangle);
                 updater.add();
@@ -54,6 +54,11 @@ public final class RectilinearRegion {
         return grid;
     }
 
+    /**
+     * @return a new map with an empty collection at each coordinate with x values of xCoord and y values of yCoord
+     * such that xCoord is a list of all left and right values from {@code rectangles} and
+     * yCoord is a list of all bottom and top values
+     */
     private static BiDimensionalMap<Rectangle> mapFromRectangles(Set<Rectangle> rectangles){
         Collection<BigDecimal> xCoord = new ArrayList<>();
         Collection<BigDecimal> yCoord = new ArrayList<>();
@@ -73,18 +78,19 @@ public final class RectilinearRegion {
      * @return true if there are overlapping rectangles in the RectilinearRegion
      */
     public boolean isOverlapping(){
-        //todo test
         if (rectangles.isEmpty()){
             throw new IllegalStateException("No rectangles in the rectilinear region");
         }
         boolean overlap = false;
+        RECTANGLE_LOOP:
         for (Collection<Rectangle> rectangleCollection : rectangleMap().collectionList()){
-            if (rectangleCollection.size() > 1){
+            if (rectangleCollection.size() > 1) {
                 /*
                 When there are two or more rectangles stored in the same point
                 in the grid of rectangles, it means they are overlapping
                  */
                 overlap = true;
+                break RECTANGLE_LOOP;
             }
         }
         return overlap;
@@ -95,7 +101,7 @@ public final class RectilinearRegion {
      * @return a valid rectilinear region in which no rectangle is null and there are no overlapping rectangles.
      * */
     public static RectilinearRegion of(Set<Rectangle> rectangles) {
-        //todo test
+
         RectilinearRegion rectilinearRegion =  new RectilinearRegion(rectangles);
         if (rectangles.isEmpty()) throw new IllegalArgumentException("Rectangle set can not be empty");
         if (rectilinearRegion.isOverlapping()) throw new IllegalArgumentException("Rectangles can not be overlapping");
