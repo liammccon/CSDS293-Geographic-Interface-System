@@ -1,9 +1,6 @@
 package gis;
 
-import org.w3c.dom.css.Rect;
-
 import java.math.BigDecimal;
-import java.text.Bidi;
 import java.util.*;
 
 /**
@@ -11,27 +8,26 @@ import java.util.*;
  */
 public final class RectilinearRegion {
 
-    private final Set<Rectangle> rectangles = new HashSet<>(); //todo that right? doesnt say what to initialize as
-
-    public Set<Rectangle> getRectangles () {
-        return rectangles;
-    }
+    private final Set<Rectangle> rectangles = new HashSet<>();
 
     /**
      * Private constructor that verifies each rectangle from the argument
      * then copies it to the private field rectangles
      */
     private RectilinearRegion(Set<Rectangle> rectangles) {
-        validateRectangles(rectangles);
+        validate(rectangles);
         this.rectangles.addAll(rectangles);
     }
 
-    private static Set<Rectangle> validateRectangles (Set<Rectangle> rectangles){
+    private static Set<Rectangle> validate(Set<Rectangle> rectangles){
         Objects.requireNonNull(rectangles);
-        rectangles.stream()
-                .forEach(rectangle -> {
-                    rectangle.validate();
-                });
+        for (Rectangle rectangle : rectangles) {
+            rectangle.validate();
+        }
+        return rectangles;
+    }
+
+    public Set<Rectangle> getRectangles () {
         return rectangles;
     }
 
@@ -40,10 +36,11 @@ public final class RectilinearRegion {
      * all the points within the rectangle (left and bottom inclusive, top and bottom exclusive)
      */
     public BiDimensionalMap<Rectangle> rectangleMap() {
-        validateRectangles(rectangles); //todo not needed? and test
+        validate(rectangles);
 
         BiDimensionalMap<Rectangle> grid = mapFromRectangles(rectangles);
 
+        /*For each rectangle, get all coordinates from grid in which you will put the rectangle*/
         for (Rectangle rectangle : rectangles){
             List<Coordinate> coordinatesSlice = grid.slice(rectangle).coordinateSet();
 
@@ -98,13 +95,10 @@ public final class RectilinearRegion {
      * @return a valid rectilinear region in which no rectangle is null and there are no overlapping rectangles.
      * */
     public static RectilinearRegion of(Set<Rectangle> rectangles) {
-        //todo test, change return null to throw exception?
-        //Ensures rectangles is not null and the rectangles inside are valid todo just call validate?
-        RectilinearRegion rectilinearRegion =  new RectilinearRegion(rectangles); //Constructor does the validation
-        if (rectangles.isEmpty()) return null;
-        if (rectilinearRegion.isOverlapping()) return null;
+        //todo test
+        RectilinearRegion rectilinearRegion =  new RectilinearRegion(rectangles);
+        if (rectangles.isEmpty()) throw new IllegalArgumentException("Rectangle set can not be empty");
+        if (rectilinearRegion.isOverlapping()) throw new IllegalArgumentException("Rectangles can not be overlapping");
         return rectilinearRegion;
     }
-
-
 }

@@ -19,12 +19,15 @@ class CoordinateTest {
     static Coordinate c0x1 = new Coordinate(d0, d1);
     static Coordinate c1x0 = new Coordinate(d1, d0);
     static Coordinate c1x1 = new Coordinate(d1, d1);
-    static final Coordinate [][] coordinateGrid2x2 = { {c0x0, c0x1},
-                                                        {c1x0, c1x1} };
+
     //invalid points
     static Coordinate nullPoint = null;
     static Coordinate nullY = new Coordinate(new BigDecimal(3), null);
     static Coordinate nullXandY = new Coordinate(null, null);
+
+    static Coordinate makeCoord(int x, int y){
+        return new Coordinate(new BigDecimal(x), new BigDecimal(y));
+    }
 
     @Test
     public void testValidate(){ //tests both validate methods

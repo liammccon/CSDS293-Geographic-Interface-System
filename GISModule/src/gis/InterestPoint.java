@@ -8,7 +8,7 @@ import java.util.Objects;
  * @param coordinate The coordinate where the interest point is located
  * @param marker Marks what is at the coordinate
  */
-public record InterestPoint<M>(Coordinate coordinate, M marker) {
+public record InterestPoint<M extends Enum<M>>(Coordinate coordinate, M marker) {
 
     public static final InterestPoint validate(InterestPoint interestPoint){
         Objects.requireNonNull(interestPoint, "InterestPoint cannot be null");

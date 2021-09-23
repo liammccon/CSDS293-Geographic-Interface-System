@@ -18,20 +18,20 @@ public class BiDimensionalMap <T> {
       get a map of all collections of markers ( with points.get(x).get(y) ) at y locations for that x */
     private final SortedMap<BigDecimal, SortedMap<BigDecimal, Collection<T> > > points = new TreeMap<>();
 
-    public BiDimensionalMap() { }//todo need to make constructor? ok to make constructor?
+    public BiDimensionalMap() { }
 
     /**
      * Enters a new hashmap in all the coordinates made of (xCoord, yCoord)
      */
     BiDimensionalMap ( Collection<BigDecimal> xCoord, Collection<BigDecimal> yCoord) {
-        //todo test? can I?
+
         for (BigDecimal x: xCoord) {
             validateBigDecimal(x);
 
             for (BigDecimal y: yCoord) {
                 validateBigDecimal(y);
 
-                addCollectionToMapAtXY(x, y); // TODO: do a check first?
+                addCollectionToMapAtXY(x, y);
             }
         }
     }
@@ -78,18 +78,11 @@ public class BiDimensionalMap <T> {
         Objects.requireNonNull(d, "Coordinate component can not be null");
     }
 
-    /**True if points has a SortedMap at x (that can store a collection of markers at a certain y coordinate).
-    No markers need to exist to return true, just the Map */
-    private boolean mapExistAtX(BigDecimal x){
-        validateBigDecimal(x);
-        return points.containsKey(x);
-    }
-
     /**True if points has a SortedMap at x and a Collection at that SortedMap's y location.
      * No markers need to exist to return true, just the Map.
      * If true, markers can be safely added to points.get(x).get(y)*/
     private boolean collectionExistsAtXY(BigDecimal x, BigDecimal y){
-        if (mapExistAtX(x)){
+        if (points.containsKey(x)){
             return points.get(x).containsKey(y);
         } else {
             return false;
@@ -212,11 +205,15 @@ public class BiDimensionalMap <T> {
 
     //Helper for slice(). Copies the values from points.get(coordinate) to the map
     private void copyValuesToMap(BiDimensionalMap<T> map, Coordinate coordinate) {
-
         Updater updater = map.getUpdater();
         updater.setCoordinate(coordinate);
 
-        if (get(coordinate).isEmpty()) return; //no values in the map at this location
+        if (get(coordinate).isEmpty()) {
+            /*no values in the map at this location.
+            Add new empty collection to map then exit before trying to copy to that location */
+            map.addCollectionToMapAtXY(coordinate.x(), coordinate.y());
+            return;
+        }
 
         for (T value : get(coordinate)){
             updater.addValue(value);
@@ -229,8 +226,7 @@ public class BiDimensionalMap <T> {
      Used in the Updater and in the private BiDimensionalMap constructor.
      */
     private Collection<T> addCollectionToMapAtXY(BigDecimal x, BigDecimal y){
-        //todo assert (!collectionExistsAtXY(x, y)); ?
-        if (!mapExistAtX(x)){
+        if (!points.containsKey(x)){
             //add the map that will store all of the y maps
             SortedMap<BigDecimal, Collection<T> >  newMap = new TreeMap<>();
             points.put(x, newMap);
@@ -325,7 +321,7 @@ public class BiDimensionalMap <T> {
          * if one exists, otherwise returns null
          */
         public final Collection<T> set(){
-            HashSet<T> previousValues = null;
+            Set<T> previousValues = null;
             if (collectionExistsAtXY(x, y)) {
                 previousValues = new HashSet<>(get(x, y));
             } else {

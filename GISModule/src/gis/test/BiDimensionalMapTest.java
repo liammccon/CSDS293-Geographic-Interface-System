@@ -11,6 +11,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static gis.test.CoordinateTest.makeCoord;
 import static gis.test.InterestPointTest.newPoint;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -38,9 +39,9 @@ class BiDimensionalMapTest {
             }
         }
 
-        //creating a duplicate for testing
-        InterestPoint interestPointAt0x0 = interestPointArray[0];
-        interestPointArray[1] = new InterestPoint(Coordinate.ORIGIN, interestPointAt0x0.marker() + "Copy");
+        //creating a duplicate for testing. They can not have the same marker since Sets do not allow duplicates
+        interestPointArray[0] = new InterestPoint(Coordinate.ORIGIN, Marker.HOME);
+        interestPointArray[1] = new InterestPoint(Coordinate.ORIGIN, Marker.DUPLICATE);
         return interestPointArray;
 
     }
@@ -50,11 +51,9 @@ class BiDimensionalMapTest {
         BiDimensionalMap newMap = makeTestMapWithPoints(interestPointArray);
         final String ADDED_VAL = "add!";
         newMap.addEverywhere(ADDED_VAL);
-        int sizeCount = 0;
 
         List<Coordinate> coordinates = newMap.coordinateSet();
         for (Coordinate c : coordinates){
-            sizeCount++;
             assertTrue(newMap.get(c).contains(ADDED_VAL));
         }
     }
@@ -62,10 +61,10 @@ class BiDimensionalMapTest {
 
     @Test
     public void testSet(){
-        InterestPoint pointAt1x1 = newPoint(1,1);
+        InterestPoint pointAt1x1 = new InterestPoint(makeCoord(1,1), Marker.HOME);
         BiDimensionalMap<InterestPoint> map = new BiDimensionalMap<>();
         addInterestPointToMap(map, pointAt1x1);
-        InterestPoint demolitionZone = new InterestPoint<>(pointAt1x1.coordinate(), "DEMOLITION ZONE");
+        InterestPoint demolitionZone = new InterestPoint<>(pointAt1x1.coordinate(), Marker.SCHOOL);
         BiDimensionalMap.Updater updater = map.getUpdater();
         updater.setCoordinate(demolitionZone.coordinate());
         updater.addValue(demolitionZone);
@@ -118,8 +117,8 @@ class BiDimensionalMapTest {
     public void testNullHandling(){
         Coordinate nullC = null;
         Coordinate nullX = new Coordinate(null, new BigDecimal(1));
-        InterestPoint nullXCoordinateInterest = new InterestPoint<>(nullX, "SCHOOL");
-        InterestPoint nullCoordinateInterest = new InterestPoint<>(nullX, "WORK");
+        InterestPoint nullXCoordinateInterest = new InterestPoint<>(nullX, Marker.SCHOOL);
+        InterestPoint nullCoordinateInterest = new InterestPoint<>(nullX, Marker.WORK);
         BiDimensionalMap<InterestPoint> map = new BiDimensionalMap<>();
 
         assertNull(map.get(new BigDecimal(-1), new BigDecimal(-1)));
@@ -227,6 +226,7 @@ class BiDimensionalMapTest {
         List<Coordinate> newMapCoordinates = newMap.coordinateSet();
 
         //ensures that the coordinates in the sliced map are within the bounds
+        assertFalse(newMapCoordinates.isEmpty());
         for (Coordinate coordinate : newMapCoordinates) {
             assertTrue(coordinate.compareTo(topRight) < 0);
         }
