@@ -2,13 +2,15 @@ package gis;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * An area of a 2 dimensional map delimited by multiple rectangles.
  */
 public final class RectilinearRegion {
 
-    private final Set<Rectangle> rectangles = new HashSet<>();
+    private final Set<Rectangle> rectangles ;
 
     /**
      * Private constructor that verifies each rectangle from the argument
@@ -16,7 +18,7 @@ public final class RectilinearRegion {
      */
     private RectilinearRegion(Set<Rectangle> rectangles) {
         validate(rectangles);
-        this.rectangles.addAll(rectangles);
+        this.rectangles = new HashSet<>(rectangles);
     }
 
     private static Set<Rectangle> validate(Set<Rectangle> rectangles){
@@ -40,19 +42,24 @@ public final class RectilinearRegion {
 
         BiDimensionalMap<Rectangle> grid = mapFromRectangles(rectangles);
 
-        /*For each rectangle, get all coordinates from grid in which you will put the rectangle*/
+        for (Rectangle rectangle : rectangles){
+            //todo added public method addEverywhere(coordinates, value) in BiDimensionalMap
+            grid.addEverywhere(grid.slice(rectangle).coordinateSet(), rectangle);
+
+        }
+
+        /*todo remove
+        //For each rectangle, get all coordinates from grid in which you will put the rectangle
         for (Rectangle rectangle : rectangles){
             List<Coordinate> coordinatesSlice = grid.slice(rectangle).coordinateSet();
-
             for (Coordinate coordinate : coordinatesSlice){
                 BiDimensionalMap<Rectangle>.Updater updater = grid.getUpdater();
-                updater.setCoordinate(coordinate);
-                updater.addValue(rectangle);
-                updater.add();
+                updater.setCoordinate(coordinate).addValue(rectangle).add();
             }
-        }
+        }*/
         return grid;
     }
+
 
     /**
      * @return a new map with an empty collection at each coordinate with x values of xCoord and y values of yCoord
@@ -60,15 +67,14 @@ public final class RectilinearRegion {
      * yCoord is a list of all bottom and top values
      */
     private static BiDimensionalMap<Rectangle> mapFromRectangles(Set<Rectangle> rectangles){
-        Collection<BigDecimal> xCoord = new ArrayList<>();
-        Collection<BigDecimal> yCoord = new ArrayList<>();
 
-        for (Rectangle rectangle : rectangles){
-            xCoord.add(rectangle.left());
-            xCoord.add(rectangle.right());
-            yCoord.add(rectangle.bottom());
-            yCoord.add(rectangle.top());
-        }
+        Collection<BigDecimal> xCoord = rectangles.stream()
+                .flatMap(rectangle -> Stream.of(rectangle.left(), rectangle.right()))
+                .collect(Collectors.toList());
+
+        Collection<BigDecimal> yCoord = rectangles.stream()
+                .flatMap(rectangle -> Stream.of(rectangle.bottom(), rectangle.top()))
+                .collect(Collectors.toList());
 
         return new BiDimensionalMap<>(xCoord, yCoord);
     }
@@ -78,22 +84,9 @@ public final class RectilinearRegion {
      * @return true if there are overlapping rectangles in the RectilinearRegion
      */
     public boolean isOverlapping(){
-        if (rectangles.isEmpty()){
-            throw new IllegalStateException("No rectangles in the rectilinear region");
-        }
-        boolean overlap = false;
-        RECTANGLE_LOOP:
-        for (Collection<Rectangle> rectangleCollection : rectangleMap().collectionList()){
-            if (rectangleCollection.size() > 1) {
-                /*
-                When there are two or more rectangles stored in the same point
-                in the grid of rectangles, it means they are overlapping
-                 */
-                overlap = true;
-                break RECTANGLE_LOOP;
-            }
-        }
-        return overlap;
+
+        return rectangleMap().collectionList().stream()
+                .anyMatch(rectangleCollection -> rectangleCollection.size() > 1);
     }
 
     /**
@@ -101,10 +94,9 @@ public final class RectilinearRegion {
      * @return a valid rectilinear region in which no rectangle is null and there are no overlapping rectangles.
      * */
     public static RectilinearRegion of(Set<Rectangle> rectangles) {
-
         RectilinearRegion rectilinearRegion =  new RectilinearRegion(rectangles);
-        if (rectangles.isEmpty()) throw new IllegalArgumentException("Rectangle set can not be empty");
-        if (rectilinearRegion.isOverlapping()) throw new IllegalArgumentException("Rectangles can not be overlapping");
+        if (rectangles.isEmpty()) throw new IllegalArgumentException();
+        if (rectilinearRegion.isOverlapping()) throw new IllegalArgumentException();
         return rectilinearRegion;
     }
 }

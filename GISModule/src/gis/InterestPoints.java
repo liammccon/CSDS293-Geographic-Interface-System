@@ -3,7 +3,9 @@ package gis;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Stores InterestPoints in a BiDimensionalMap.
@@ -36,44 +38,16 @@ public final class InterestPoints <M extends Enum<M>> {
      * with the given marker
      */
     public final long count(RectilinearRegion region, M marker){
-        if (region.isOverlapping()) throw new IllegalArgumentException("Region can not be overlapping");
+        Objects.requireNonNull(region);
+        Objects.requireNonNull(marker);
 
-        Collection<InterestPoint> filteredPoints = getFilteredPoints(marker);
+        Stream<InterestPoint> pointsInRegion = region.getRectangles().stream()
+                .flatMap(rectangle -> points.slice(rectangle).collectionList().stream())
+                .flatMap(Collection::stream);
 
-        long count = 0;
-        for (InterestPoint point : filteredPoints) {
-
-            if (regionContainsCoordinate(region, point.coordinate())){
-                //true if the point.coordinate() appears in the region
-                count ++;
-            }
-        }
-        return count;
-    }
-
-    private Collection<InterestPoint> getFilteredPoints(M marker) {
-        Collection<InterestPoint> filteredPoints = new ArrayList<>();
-
-        for (Collection<InterestPoint> pointCollection : points.collectionList()) {
-            filteredPoints.addAll(pointCollection.stream()
-                    .filter(interestPoint -> interestPoint.hasMarker(marker))
-                    .collect(Collectors.toList())
-            );
-        }
-        return filteredPoints;
-    }
-
-    private boolean regionContainsCoordinate(RectilinearRegion region, Coordinate coordinate) {
-        for (Rectangle rectangle : region.getRectangles()) {
-            //Checks each rectangle slice of points for the given coordinate
-            if (points.slice(rectangle).coordinateSet().contains(coordinate)){
-                return true;
-            } else {
-                //keep checking!
-            }
-        }
-        //Coordinate does not exist in the rectangle set
-        return false;
+        return pointsInRegion
+                .filter(interestPoint -> interestPoint.hasMarker(marker))
+                .count();
     }
 
 
