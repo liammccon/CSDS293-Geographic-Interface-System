@@ -11,8 +11,8 @@ import java.util.Objects;
 public record InterestPoint<M extends Enum<M>>(Coordinate coordinate, M marker) {
 
     public static final InterestPoint validate(InterestPoint interestPoint){
-        Objects.requireNonNull(interestPoint, "InterestPoint cannot be null");
-        Objects.requireNonNull(interestPoint.marker, "marker cannot be null");
+        Objects.requireNonNull(interestPoint);
+        Objects.requireNonNull(interestPoint.marker);
         interestPoint.coordinate.validate();
         return interestPoint;
     }

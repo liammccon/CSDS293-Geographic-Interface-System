@@ -15,9 +15,9 @@ import java.util.Objects;
 public record Coordinate(BigDecimal x, BigDecimal y) implements Comparable<Coordinate>{
 
     public static final Coordinate validate(Coordinate coordinate){
-        Objects.requireNonNull(coordinate, "Coordinate can not be null");
-        Objects.requireNonNull(coordinate.x, "Coordinate x value can not be null");
-        Objects.requireNonNull(coordinate.y, "Coordinate y value can not be null");
+        Objects.requireNonNull(coordinate);
+        Objects.requireNonNull(coordinate.x);
+        Objects.requireNonNull(coordinate.y);
         return coordinate;
     }
 
@@ -39,13 +39,8 @@ public record Coordinate(BigDecimal x, BigDecimal y) implements Comparable<Coord
 
         Comparator<Coordinate> compareX = Comparator.comparing(Coordinate::x);
         Comparator<Coordinate> compareY = Comparator.comparing(Coordinate::y);
-        Comparator<Coordinate> compareXY = compareX.thenComparing(compareY);
 
-        return compareXY.compare(this, other);
-    }
-
-    private boolean isLessThan(int compareX, int compareY) {
-        return (compareX < 0) || ((compareX == 0) && (compareY < 0));
+        return compareX.thenComparing(compareY).compare(this, other);
     }
 
     public String toSimpleString(){
