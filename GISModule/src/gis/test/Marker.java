@@ -1,5 +1,12 @@
 package gis.test;
 
-public enum Marker {
-    CLASSROOM, SCHOOL, HOME, WORK, DUPLICATE
+import gis.userInterface.Option;
+
+public enum Marker implements Option {
+    CLASSROOM, SCHOOL, HOME, WORK, DUPLICATE;
+
+    @Override
+    public String message() {
+        return toString();
+    }
 }
