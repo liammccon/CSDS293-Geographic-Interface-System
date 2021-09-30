@@ -13,17 +13,17 @@ import java.util.stream.IntStream;
 public class Main {
 
     public static void main (String [] args){
-        first();
+        firstScreen();
     }
 
     //------------------------------------------------------------------------------------------------------------------
     //Screens
-    private static void first(){
+    private static void firstScreen(){
         pointMap = newPointMap.get();
         final String FIRST_MESSAGE = "Would you like to make a: ";
 
         LinkOption[] linkOptions = new LinkOption[] {
-                new LinkOption("Map of interest points" , ()-> mapOfPoints()),
+                new LinkOption("Map of interest points" , ()-> pointMapScreen()),
                 new LinkOption("Rectilinear region", ()-> {
                     System.out.println("No rectilinear regions yet");
                     try {
@@ -31,23 +31,24 @@ public class Main {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    first();
+                    firstScreen();
                 }),
                 new LinkOption("Exit" , ()-> System.exit(0))
         };
 
-        messageAndLinkOptionsScreen(FIRST_MESSAGE, linkOptions);
+        anyOptionScreen(FIRST_MESSAGE, linkOptions);
     }
-    private static void mapOfPoints(){
+
+    private static void pointMapScreen(){
 
         final String EMPTY_MAP = "You have an empty map. You can: ";
         final String MAP_WITH_POINTS = "You have a map with interest points: ";
 
         LinkOption[] linkOptions = new LinkOption[] {
-                new LinkOption("Add interest point", ()-> addPoints()),
-                new LinkOption("Set interest point", ()->setPoints()),
+                new LinkOption("Add interest point", ()-> addPointsScreen()),
+                new LinkOption("Set interest point", ()-> setPointsScreen()),
                 new LinkOption("Clear map", ()->clearMap()),
-                new LinkOption("Go back", ()->first())
+                new LinkOption("Go back", ()-> firstScreen())
         };
 
         String message = "";
@@ -58,29 +59,24 @@ public class Main {
                     "\nHere is the map, showing the number of points at any coordinate" + mapGraph();
         }
 
-        messageAndLinkOptionsScreen(message, linkOptions);
+        anyOptionScreen(message, linkOptions);
 
     }
 
-    private static void addPoints() {
+    private static void addPointsScreen() {
         InterestPoint<Markers> point = getPoint();
         System.out.println("\nAdding interest point: " + point);
         BiDimensionalMap.Updater updater = pointMap.getUpdater();
         updater.setCoordinate(point.coordinate()).addValue(point).add();
-        mapOfPoints();
+        pointMapScreen();
     }
 
-    private static void setPoints() {
+    private static void setPointsScreen() {
         InterestPoint<Markers> point = getPoint();
         System.out.println("\nAdding interest point: " + point);
         BiDimensionalMap.Updater updater = pointMap.getUpdater();
         updater.setCoordinate(point.coordinate()).addValue(point).set();
-        mapOfPoints();
-    }
-
-    private static void clearMap() {
-        pointMap = newPointMap.get();
-        mapOfPoints();
+        pointMapScreen();
     }
 
 
@@ -99,6 +95,11 @@ public class Main {
     private final static String INVALID_INPUT ="Invalid input. ";
 
     final private static int UPPER_COORDINATE_BOUND = 15;
+
+    private static void clearMap() {
+        pointMap = newPointMap.get();
+        pointMapScreen();
+    }
 
     private record LinkOption(String message, GoTo goTo) implements Option {
         public String toString() {
@@ -147,7 +148,7 @@ public class Main {
         return (LinkOption) getChosenOption(linkOptions);
     }
 
-    private static void messageAndLinkOptionsScreen(String message, LinkOption[] linkOptions) {
+    private static void anyOptionScreen(String message, LinkOption[] linkOptions) {
         clearScreen();
         System.out.println(message);
         showOptions(linkOptions);
@@ -200,7 +201,7 @@ public class Main {
 
             for(int x = 0; x<= UPPER_COORDINATE_BOUND; x++){
 
-                mapString.append(getCell(x, y));
+                mapString.append(cell(x, y));
             }
             mapString.append("\n");
         }
@@ -214,7 +215,7 @@ public class Main {
         } else return 0;
     }
 
-    private static char[] getCell(int x, int y) {
+    private static char[] cell(int x, int y) {
         char[] chars = new char[2];
         int numOfPoints = numOfPoints(x, y);
 
